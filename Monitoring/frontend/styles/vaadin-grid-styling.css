@@ -1,0 +1,12 @@
+.colorGreen {
+	background-color: rgb(71, 151, 90);
+}
+.colorYellow {
+	background-color: rgb(231, 118, 55);
+}
+.colorRed {
+	background-color: rgb(184, 15, 12);
+}
+--vaadin-grid-cell: {
+        text-align: center;
+      }
