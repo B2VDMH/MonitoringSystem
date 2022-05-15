@@ -11,37 +11,47 @@ import hu.gdf.thesis.model.config.Config;
 import hu.gdf.thesis.model.config.Entry;
 import hu.gdf.thesis.model.config.RestField;
 import hu.gdf.thesis.utils.notifications.CustomNotification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class RestFieldDialog extends Dialog {
     private RestField restField = new RestField();
     private boolean saveState = false;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestFieldDialog.class);
 
     public RestFieldDialog(String fileName, Config config, Category category, Entry entry, @Autowired FileHandler fileHandler) {
 
-        TextField restFieldPathTF =  new TextField("REST Field Path");
+        TextField restFieldPathTF = new TextField("REST Field Path");
+        restFieldPathTF.setWidth("350px");
         Button cancelButton = new Button("Cancel" , e -> this.close());
 
         Button saveButton = new Button("Save to Config");
         saveButton.addClickListener( buttonClickEvent -> {
-            if(restFieldPathTF.getValue().isEmpty()){
-                CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
-                errorNotification.open();
-            } else {
-                restField.setFieldPath(restFieldPathTF.getValue());
-                entry.getRestFields().add(restField);
+            try {
+                if(restFieldPathTF.getValue().isEmpty()){
+                    CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
+                    errorNotification.open();
+                } else {
+                    restField.setFieldPath(restFieldPathTF.getValue());
+                    entry.getRestFields().add(restField);
 
-                int entryIndex = category.getEntries().indexOf(entry);
-                category.getEntries().set(entryIndex,entry);
+                    int entryIndex = category.getEntries().indexOf(entry);
+                    category.getEntries().set(entryIndex,entry);
 
-                int categoryIndex = config.getServer().getCategories().indexOf(category);
-                config.getServer().getCategories().set(categoryIndex, category);
+                    int categoryIndex = config.getServer().getCategories().indexOf(category);
+                    config.getServer().getCategories().set(categoryIndex, category);
 
-                fileHandler.writeConfigToFile(fileName, fileHandler.serializeJsonConfig(config));
-                saveState=true;
-                this.close();
+                    fileHandler.writeConfigToFile(fileName, fileHandler.serializeJsonConfig(config));
+                    saveState=true;
+                    this.close();
+                }
+            }catch (Exception ex) {
+                LOGGER.error("Rest Field Dialog produced error, when trying to save", ex);
             }
+
         });
+        this.setCloseOnOutsideClick(false);
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, saveButton);
         VerticalLayout dialogContentLayout = new VerticalLayout(restFieldPathTF, buttonLayout);
         this.add(dialogContentLayout);

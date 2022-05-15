@@ -1,8 +1,6 @@
 package hu.gdf.thesis.pages;
 
 import com.flowingcode.vaadin.addons.simpletimer.SimpleTimer;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -16,12 +14,12 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import hu.gdf.thesis.AppHeader;
-import hu.gdf.thesis.backend.OperationHandler;
-import hu.gdf.thesis.backend.FileHandler;
-import hu.gdf.thesis.backend.RestClient;
+import hu.gdf.thesis.backend.*;
 import hu.gdf.thesis.model.Response;
 import hu.gdf.thesis.model.config.*;
 import net.minidev.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -34,7 +32,10 @@ public class MonitoringPage extends VerticalLayout {
     static String fileName = "";
     private boolean checkTimerState;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringPage.class);
+
     public MonitoringPage(@Autowired FileHandler fileHandler, RestClient restClient) {
+
 
         Select fileSelect = new Select();
         fileSelect.setItems(fileHandler.listFilesInDirectory());
@@ -44,45 +45,47 @@ public class MonitoringPage extends VerticalLayout {
         this.add(new AppHeader(), fileSelect);
 
         fileSelect.addValueChangeListener(e -> {
+            try {
+                fileName = String.valueOf(fileSelect.getValue());
+                config = fileHandler.deserializeJsonConfig(fileHandler.readFromFile(fileName), Config.class);
 
-            fileName = String.valueOf(fileSelect.getValue());
-            config = fileHandler.deserializeJsonConfig(fileHandler.readFromFile(fileName), Config.class);
+                VerticalLayout gridLayout = new VerticalLayout();
+                HorizontalLayout timerLayout = new HorizontalLayout();
 
-            VerticalLayout gridLayout = new VerticalLayout();
-            HorizontalLayout timerLayout = new HorizontalLayout();
+                SimpleTimer timer = new SimpleTimer(new BigDecimal(config.getServer().getRefreshTimer()));
 
-            SimpleTimer timer = new SimpleTimer(new BigDecimal(config.getServer().getRefreshTimer()));
+                timer.addTimerEndEvent(timerEndedEvent -> {
+                    gridLayout.removeAll();
+                    gridLayout.add(buildMonitoringGrid(fileHandler, restClient));
+                    timer.reset();
+                    timer.start();
+                });
 
-            timer.addTimerEndEvent(timerEndedEvent -> {
+                Button timerButton = new Button("Start/Pause");
+                timerButton.addClickListener(buttonClickEvent -> {
+                    if (checkTimerState) {
+                        timer.pause();
+                        checkTimerState = false;
+                    } else {
+                        timer.start();
+                        checkTimerState = true;
+                    }
+                });
+
+                timer.start();
+                timerLayout.add(timer, timerButton);
                 gridLayout.removeAll();
                 gridLayout.add(buildMonitoringGrid(fileHandler, restClient));
-                timer.reset();
-                timer.start();
-            });
-
-            Button timerButton = new Button("Start/Pause");
-            timerButton.addClickListener(buttonClickEvent -> {
-                if (checkTimerState) {
-                    timer.pause();
-                    checkTimerState = false;
-                } else {
-                    timer.start();
-                    checkTimerState = true;
-                }
-            });
-
-            buildMonitoringGrid(fileHandler, restClient);
-            timer.start();
-            timerLayout.add(timer, timerButton);
-            gridLayout.removeAll();
-            gridLayout.add(buildMonitoringGrid(fileHandler, restClient));
-            this.add(timerLayout, gridLayout);
+                this.add(timerLayout, gridLayout);
+            } catch (Exception ex) {
+                LOGGER.error("File Selection error", ex);
+            }
         });
 
     }
 
     public Grid<Response> buildMonitoringGrid(FileHandler fileHandler, RestClient restClient) {
-        //Grid Component's empty List
+
         Grid<Response> monitoringGrid = new Grid<>(Response.class, false);
 
         //Create Grid columns
@@ -94,60 +97,35 @@ public class MonitoringPage extends VerticalLayout {
         monitoringGrid.setClassNameGenerator(Response::getColor);
 
         //Building Grid rows based on config file data
-        List<Response> responseList = new ArrayList<>();
+        try {
+            List<Response> responseList = new ArrayList<>();
 
-        config = fileHandler.deserializeJsonConfig(fileHandler.readFromFile(fileName), Config.class);
+            config = fileHandler.deserializeJsonConfig(fileHandler.readFromFile(fileName), Config.class);
 
-        Server server = config.getServer();
+            ResponseHandler responseHandler = new ResponseHandler();
 
-        for (Category category : server.getCategories()) {
-            for (Entry entry : category.getEntries()) {
+            responseHandler.buildResponseList(config, restClient, responseList);
 
-                String responseJson = restClient.restCall(server, entry);
+            //Filling grid rows with updated responseList
+            GridListDataView<Response> responseDataView = monitoringGrid.setItems(responseList);
 
-                for (RestField restField : entry.getRestFields()) {
-
-                    DocumentContext jsonContext = JsonPath.parse(responseJson);
-                    if (!(jsonContext.read(restField.getFieldPath()) instanceof JSONArray)) {
-                        String fieldValue = jsonContext.read(restField.getFieldPath());
-                        Response response = new Response();
-                        response.setHostName(server.getHost() + " : " + server.getPort());
-                        response.setCategoryType(category.getType());
-                        response.setRestURL(entry.getRestURL());
-                        response.setFieldPath(restField.getFieldPath());
-                        response.setFieldValue(fieldValue);
-                        for (Operation operation : restField.getOperation()) {
-                            OperationHandler operationHandler = new OperationHandler();
-                            operationHandler.checkOperation(operation, fieldValue);
-
-                            if (operationHandler.isCheckState()) {
-                                response.setColor(operationHandler.getColor());
-                            }
-                        }
-                        responseList.add(response);
-                    }
-                }
-            }
+            //Grid Component's Filter Headers based on createFilterHeader static component
+            monitoringGrid.getHeaderRows().clear();
+            HeaderRow headerRow = monitoringGrid.appendHeaderRow();
+            Filter filter = new Filter(responseDataView);
+            headerRow.getCell(serverHostColumn).setComponent(
+                    createFilterHeader(filter::setServerHost));
+            headerRow.getCell(categoryColumn).setComponent(
+                    createFilterHeader(filter::setCategory));
+            headerRow.getCell(restURLColumn).setComponent(
+                    createFilterHeader(filter::setRestURL));
+            headerRow.getCell(fieldPathColumn).setComponent(
+                    createFilterHeader(filter::setFieldPath));
+            headerRow.getCell(fieldValueColumn).setComponent(
+                    createFilterHeader(filter::setFieldValue));
+        } catch (Exception ex) {
+            LOGGER.error("Error when building Monitoring Grid", ex);
         }
-
-        //Filling grid rows with updated responseList
-        GridListDataView<Response> responseDataView = monitoringGrid.setItems(responseList);
-
-        //Grid Component's Filter Headers based on createFilterHeader static component
-        monitoringGrid.getHeaderRows().clear();
-        HeaderRow headerRow = monitoringGrid.appendHeaderRow();
-        Filter filter = new Filter(responseDataView);
-        headerRow.getCell(serverHostColumn).setComponent(
-                createFilterHeader(filter::setServerHost));
-        headerRow.getCell(categoryColumn).setComponent(
-                createFilterHeader(filter::setCategory));
-        headerRow.getCell(restURLColumn).setComponent(
-                createFilterHeader(filter::setRestURL));
-        headerRow.getCell(fieldPathColumn).setComponent(
-                createFilterHeader(filter::setFieldPath));
-        headerRow.getCell(fieldValueColumn).setComponent(
-                createFilterHeader(filter::setFieldValue));
-
         return monitoringGrid;
     }
 

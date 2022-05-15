@@ -77,6 +77,5 @@ private String value;
                 "Expected: " + fieldValue + "\n" +
                 "operator: " + operator + "\n" +
                 "Found instead: " + value;
-
     }
 }

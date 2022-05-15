@@ -8,44 +8,53 @@ import com.vaadin.flow.component.textfield.TextField;
 import hu.gdf.thesis.backend.FileHandler;
 import hu.gdf.thesis.model.config.*;
 import hu.gdf.thesis.utils.notifications.CustomNotification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class AddressDialog extends Dialog {
     private Address address = new Address();
     private boolean saveState = false;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddressDialog.class);
     public AddressDialog(String fileName, Config config, Category category, Entry entry, RestField restField, Operation operation, @Autowired FileHandler fileHandler) {
 
         TextField addressTF = new TextField("Add an e-mail Address");
         addressTF.setHelperText("Alert e-mails will be sent to this address");
+        addressTF.setWidth("300px");
         Button cancelButton = new Button("Cancel" , e -> this.close());
 
         Button saveButton = new Button("Save to Config");
         saveButton.addClickListener(buttonClickEvent -> {
-            if(addressTF.getValue().isEmpty()) {
-                CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
-                errorNotification.open();
-            } else {
-                address.setAddress(addressTF.getValue());
-                operation.getAddresses().add(address);
+            try {
+                if(addressTF.getValue().isEmpty()) {
+                    CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
+                    errorNotification.open();
+                } else {
+                    address.setAddress(addressTF.getValue());
+                    operation.getAddresses().add(address);
 
-                int operationIndex = restField.getOperation().indexOf(operation);
-                restField.getOperation().set(operationIndex, operation);
+                    int operationIndex = restField.getOperation().indexOf(operation);
+                    restField.getOperation().set(operationIndex, operation);
 
-                int restFieldIndex = entry.getRestFields().indexOf(restField);
-                entry.getRestFields().set(restFieldIndex, restField);
+                    int restFieldIndex = entry.getRestFields().indexOf(restField);
+                    entry.getRestFields().set(restFieldIndex, restField);
 
-                int entryIndex = category.getEntries().indexOf(entry);
-                category.getEntries().set(entryIndex,entry);
+                    int entryIndex = category.getEntries().indexOf(entry);
+                    category.getEntries().set(entryIndex,entry);
 
-                int categoryIndex = config.getServer().getCategories().indexOf(category);
-                config.getServer().getCategories().set(categoryIndex, category);
+                    int categoryIndex = config.getServer().getCategories().indexOf(category);
+                    config.getServer().getCategories().set(categoryIndex, category);
 
-                fileHandler.writeConfigToFile(fileName, fileHandler.serializeJsonConfig(config));
-                saveState=true;
-                this.close();
+                    fileHandler.writeConfigToFile(fileName, fileHandler.serializeJsonConfig(config));
+                    saveState=true;
+                    this.close();
+                }
+            } catch (Exception ex){
+                LOGGER.error("Address Dialog produced error, when trying to save", ex);
             }
-        });
 
+        });
+        this.setCloseOnOutsideClick(false);
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, saveButton);
         VerticalLayout dialogLayout = new VerticalLayout(addressTF, buttonLayout);
         this.add(dialogLayout);

@@ -12,6 +12,8 @@ import hu.gdf.thesis.model.config.*;
 import hu.gdf.thesis.utils.dialogs.*;
 import hu.gdf.thesis.utils.layouts.CustomHorizontalLayout;
 import hu.gdf.thesis.utils.selects.CustomSelect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Route("config")
@@ -30,6 +32,7 @@ public class ConfigCreatorPage extends VerticalLayout {
     static SelectListDataView<Operation> operationDataView;
     static SelectListDataView<Address> addressDataView;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigCreatorPage.class);
 
     public ConfigCreatorPage(@Autowired FileHandler fileHandler) {
 
@@ -56,137 +59,199 @@ public class ConfigCreatorPage extends VerticalLayout {
 
         Button createFileButton = new Button("Create new config");
         createFileButton.addClickListener(buttonClickEvent -> {
-            ConfigCreatorDialog configCreatorDialog = new ConfigCreatorDialog(fileHandler);
-            configCreatorDialog.open();
-            configCreatorDialog.addDetachListener(detachEvent -> {
-                if(configCreatorDialog.isSaveState()) {
-                    UI.getCurrent().getPage().reload();
-                }
-            });
+            try {
+                ConfigCreatorDialog configCreatorDialog = new ConfigCreatorDialog(fileHandler);
+                configCreatorDialog.open();
+                configCreatorDialog.addDetachListener(detachEvent -> {
+                    if (configCreatorDialog.isSaveState()) {
+                        UI.getCurrent().getPage().reload();
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error when trying create config", ex);
+            }
         });
 
         Button editFileButton = new Button("Edit server data");
         editFileButton.addClickListener(buttonClickEvent -> {
-            EditConfigDialog editConfigDialog = new EditConfigDialog(String.valueOf(fileSelect.getValue()), fileHandler);
-            editConfigDialog.open();
-            editConfigDialog.addDetachListener(detachEvent -> {
-                if (editConfigDialog.isSaveState()) {
-                    UI.getCurrent().getPage().reload();
-                }
-            });
+            try {
+                EditConfigDialog editConfigDialog = new EditConfigDialog(String.valueOf(fileSelect.getValue()), fileHandler);
+                editConfigDialog.open();
+                editConfigDialog.addDetachListener(detachEvent -> {
+                    if (editConfigDialog.isSaveState()) {
+                        UI.getCurrent().getPage().reload();
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error editing server data in config file", ex);
+            }
+
         });
 
 
         Button addCategoryButton = new Button("Add Category");
         addCategoryButton.addClickListener(buttonClickEvent -> {
-            CategoryDialog categoryDialog = new CategoryDialog(fileName, config ,fileHandler);
-            categoryDialog.open();
-            categoryDialog.addDetachListener(detachEvent -> {
-                if (categoryDialog.isSaveState()) {
-                    categoryDataView.addItem(categoryDialog.getCategory());
-                }
-            });
+            try {
+
+                CategoryDialog categoryDialog = new CategoryDialog(fileName, config, fileHandler);
+                categoryDialog.open();
+                categoryDialog.addDetachListener(detachEvent -> {
+
+                    if (categoryDialog.isSaveState()) {
+                        categoryDataView.addItem(categoryDialog.getCategory());
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error when trying to add Category to config", ex);
+            }
+
         });
 
         Button deleteCategoryButton = new Button("Delete Category");
         deleteCategoryButton.addClickListener(buttonClickEvent -> {
-            ConfirmDialog confirmDialog = new ConfirmDialog(categorySelect.getValue().toString());
-            confirmDialog.open();
-            confirmDialog.addDetachListener(detachEvent -> {
-                if(confirmDialog.isDeleteState()) {
-                    categoryDataView.removeItem(category);
-                    fileHandler.deleteCategory(fileName, config, category);
-                }
-            });
+            try {
+                ConfirmDialog confirmDialog = new ConfirmDialog(categorySelect.getValue().toString());
+                confirmDialog.open();
+                confirmDialog.addDetachListener(detachEvent -> {
+                    if (confirmDialog.isDeleteState()) {
+                        fileHandler.deleteCategory(fileName, config, category);
+                        categoryDataView.removeItem(category);
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error when deleting Category" ,ex);
+            }
+
         });
         Button addEntryButton = new Button("Add Entry");
         addEntryButton.addClickListener(buttonClickEvent -> {
-            EntryDialog entryDialog = new EntryDialog(fileName, config, category, fileHandler);
-            entryDialog.open();
-            entryDialog.addDetachListener(detachEvent -> {
-                if(entryDialog.isSaveState()){
-                    entryDataView.addItem(entryDialog.getEntry());
-                }
-            });
+            try {
+
+                EntryDialog entryDialog = new EntryDialog(fileName, config, category, fileHandler);
+                entryDialog.open();
+                entryDialog.addDetachListener(detachEvent -> {
+                    if (entryDialog.isSaveState()) {
+                        entryDataView.addItem(entryDialog.getEntry());
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error when trying to add Entry to config", ex);
+            }
+
         });
         Button deleteEntryButton = new Button("Delete Entry");
         deleteEntryButton.addClickListener(buttonClickEvent -> {
-            ConfirmDialog confirmDialog = new ConfirmDialog(entrySelect.getValue().toString());
-            confirmDialog.open();
-            confirmDialog.addDetachListener(detachEvent -> {
-                if(confirmDialog.isDeleteState()) {
-                    entryDataView.removeItem(entry);
-                    fileHandler.deleteEntry(fileName, config, category, entry);
-                }
-            });
+            try {
+                ConfirmDialog confirmDialog = new ConfirmDialog(entrySelect.getValue().toString());
+                confirmDialog.open();
+                confirmDialog.addDetachListener(detachEvent -> {
+                    if (confirmDialog.isDeleteState()) {
+                        fileHandler.deleteEntry(fileName, config, category, entry);
+                        entryDataView.removeItem(entry);
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error when deleting Entry" ,ex);
+            }
+
         });
 
         Button addRestFieldButton = new Button("Add REST Field Path");
         addRestFieldButton.addClickListener(buttonClickEvent -> {
-            RestFieldDialog restFieldDialog = new RestFieldDialog(fileName, config, category, entry, fileHandler);
-            restFieldDialog.open();
-            restFieldDialog.addDetachListener(detachEvent -> {
-                if(restFieldDialog.isSaveState()) {
-                    restFieldDataView.addItem(restFieldDialog.getRestField());
-                }
-            });
+            try {
+                RestFieldDialog restFieldDialog = new RestFieldDialog(fileName, config, category, entry, fileHandler);
+                restFieldDialog.open();
+                restFieldDialog.addDetachListener(detachEvent -> {
+                    if (restFieldDialog.isSaveState()) {
+                        restFieldDataView.addItem(restFieldDialog.getRestField());
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error when trying to add Rest Field Path to config", ex);
+            }
+
         });
 
         Button deleteRestFieldButton = new Button("Delete REST Field Path");
         deleteRestFieldButton.addClickListener(buttonClickEvent -> {
-            ConfirmDialog confirmDialog = new ConfirmDialog(restFieldSelect.getValue().toString());
-            confirmDialog.open();
-            confirmDialog.addDetachListener(detachEvent -> {
-                if(confirmDialog.isDeleteState()) {
-                    restFieldDataView.removeItem(restField);
-                    fileHandler.deleteRestField(fileName, config, category, entry, restField);
-                }
-            });
+            try {
+                ConfirmDialog confirmDialog = new ConfirmDialog(restFieldSelect.getValue().toString());
+                confirmDialog.open();
+                confirmDialog.addDetachListener(detachEvent -> {
+                    if (confirmDialog.isDeleteState()) {
+                        fileHandler.deleteRestField(fileName, config, category, entry, restField);
+                        restFieldDataView.removeItem(restField);
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error when deleting RestField Path" ,ex);
+            }
+
         });
 
         Button addOperationButton = new Button("Add Operation");
         addOperationButton.addClickListener(buttonClickEvent -> {
-            OperationDialog operationDialog = new OperationDialog(fileName, config, category, entry, restField, fileHandler);
-            operationDialog.open();
-            operationDialog.addDetachListener(detachEvent -> {
-                if(operationDialog.isSaveState()) {
-                    operationDataView.addItem(operationDialog.getOperation());
-                }
-            });
+            try {
+                OperationDialog operationDialog = new OperationDialog(fileName, config, category, entry, restField, fileHandler);
+                operationDialog.open();
+                operationDialog.addDetachListener(detachEvent -> {
+                    if (operationDialog.isSaveState()) {
+                        operationDataView.addItem(operationDialog.getOperation());
+                    }
+                });
+            }catch (Exception ex) {
+                LOGGER.error("Error when trying to add Operation to config", ex);
+            }
+
         });
         Button deleteOperationButton = new Button("Delete Operation");
         deleteOperationButton.addClickListener(buttonClickEvent -> {
-            ConfirmDialog confirmDialog = new ConfirmDialog(operationSelect.getValue().toString());
-            confirmDialog.open();
-            confirmDialog.addDetachListener(detachEvent -> {
-                if(confirmDialog.isDeleteState()) {
-                    operationDataView.removeItem(operation);
-                    fileHandler.deleteOperation(fileName, config, category, entry, restField, operation);
-                }
-            });
+            try {
+                ConfirmDialog confirmDialog = new ConfirmDialog(operationSelect.getValue().toString());
+                confirmDialog.open();
+                confirmDialog.addDetachListener(detachEvent -> {
+                    if (confirmDialog.isDeleteState()) {
+                        fileHandler.deleteOperation(fileName, config, category, entry, restField, operation);
+                        operationDataView.removeItem(operation);
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error when deleting Operation" ,ex);
+            }
+
         });
 
         Button addAddressButton = new Button("Add Address");
         addAddressButton.addClickListener(buttonClickEvent -> {
-            AddressDialog addressDialog = new AddressDialog(fileName, config, category, entry, restField, operation, fileHandler);
-            addressDialog.open();
-            addressDialog.addDetachListener(detachEvent -> {
-                if(addressDialog.isSaveState()) {
-                    addressDataView.addItem(addressDialog.getAddress());
-                }
-            });
+            try {
+                AddressDialog addressDialog = new AddressDialog(fileName, config, category, entry, restField, operation, fileHandler);
+                addressDialog.open();
+                addressDialog.addDetachListener(detachEvent -> {
+                    if (addressDialog.isSaveState()) {
+                        addressDataView.addItem(addressDialog.getAddress());
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error when trying to add Address to config", ex);
+            }
+
         });
 
         Button deleteAddressButton = new Button("Delete Address");
         deleteAddressButton.addClickListener(buttonClickEvent -> {
-            ConfirmDialog confirmDialog = new ConfirmDialog(addressSelect.getValue().toString());
-            confirmDialog.open();
-            confirmDialog.addDetachListener(detachEvent -> {
-                if(confirmDialog.isDeleteState()) {
-                    addressDataView.removeItem(address);
-                    fileHandler.deleteAddress(fileName, config, category, entry, restField, operation, address);
-                }
-            });
+            try {
+                ConfirmDialog confirmDialog = new ConfirmDialog(addressSelect.getValue().toString());
+                confirmDialog.open();
+                confirmDialog.addDetachListener(detachEvent -> {
+                    if (confirmDialog.isDeleteState()) {
+                        fileHandler.deleteAddress(fileName, config, category, entry, restField, operation, address);
+                        addressDataView.removeItem(address);
+                    }
+                });
+            } catch (Exception ex) {
+                LOGGER.error("Error when deleting Address" ,ex);
+            }
+
         });
 
         fileSelect.addValueChangeListener(f -> {
@@ -204,6 +269,7 @@ public class ConfigCreatorPage extends VerticalLayout {
 
                 categoryDataView = (SelectListDataView<Category>) categorySelect.setItems(fileHandler.getAllCategories(config));
                 categorySelect.addValueChangeListener(c -> {
+                    category = (Category) categorySelect.getValue();
                     try {
                         entrySelect.clear();
                         restFieldSelect.clear();
@@ -212,7 +278,7 @@ public class ConfigCreatorPage extends VerticalLayout {
 
                         entryLayout.removeAll();
 
-                        category = (Category) categorySelect.getValue();
+
 
                         entrySelect.clear();
 
@@ -250,39 +316,45 @@ public class ConfigCreatorPage extends VerticalLayout {
                                                 addressSelect.addValueChangeListener(a -> {
                                                     try {
                                                         address = (Address) addressSelect.getValue();
-                                                    } catch (Exception ex){
-                                                        System.err.println(ex);
-                                                        System.err.println("Error at setting Address");
+                                                    } catch (NullPointerException ignored) {
+                                                        LOGGER.debug("Non critical null pointer Exception");
+                                                    } catch (Exception ex) {
+                                                        LOGGER.error("Error at setting Address", ex);
                                                     }
                                                 });
                                                 addressLayout.add(addressSelect, addAddressButton, deleteAddressButton);
-                                            } catch(Exception ex) {
-                                                System.err.println(ex);
-                                                System.err.println("Error at setting Operation");
+                                            } catch (NullPointerException ignored) {
+                                                LOGGER.debug("Non critical null pointer Exception");
+                                            } catch (Exception ex) {
+                                                LOGGER.error("Error at setting Operation", ex);
                                             }
                                         });
                                         operationLayout.add(operationSelect, addOperationButton, deleteOperationButton);
+                                    } catch (NullPointerException ignored) {
+                                        LOGGER.debug("Non critical null pointer Exception");
                                     } catch (Exception ex) {
-                                        System.out.println(ex);
-                                        System.err.println("Error at setting REST Field");
+                                        LOGGER.error("Error at setting RestField", ex);
                                     }
                                 });
                                 restFieldLayout.add(restFieldSelect, addRestFieldButton, deleteRestFieldButton);
-                            }catch(Exception ex) {
-                                System.out.println(ex);
-                                System.err.println("Error at setting Entry");
+                            } catch (NullPointerException ignored) {
+                                LOGGER.debug("Non critical null pointer Exception");
+                            } catch (Exception ex) {
+                                LOGGER.error("Error at setting Entry", ex);
                             }
                         });
                         entryLayout.add(entrySelect, addEntryButton, deleteEntryButton);
+                    } catch (NullPointerException ignored) {
+                        LOGGER.debug("Non critical null pointer Exception");
                     } catch (Exception ex) {
-                        System.out.println(ex);
-                        System.err.println("Error at setting Category");
+                        LOGGER.error("Error at setting Category", ex);
                     }
                 });
-                categoryLayout.add(categorySelect,addCategoryButton,deleteCategoryButton);
+                categoryLayout.add(categorySelect, addCategoryButton, deleteCategoryButton);
+            } catch (NullPointerException ignored) {
+                LOGGER.debug("Non critical null pointer Exception");
             } catch (Exception ex) {
-                System.out.println(ex);
-                System.err.println("Error at setting File");
+                LOGGER.error("Error at setting Config", ex);
             }
         });
         configFileLayout.add(fileSelect, createFileButton, editFileButton);

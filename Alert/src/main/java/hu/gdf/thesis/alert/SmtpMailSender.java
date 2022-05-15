@@ -3,6 +3,7 @@ package hu.gdf.thesis.alert;
 import hu.gdf.thesis.model.AlertEmailContent;
 import hu.gdf.thesis.model.config.Address;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -17,11 +18,16 @@ public class SmtpMailSender {
     JavaMailSender mailSender;
 
     public void sendEmail(AlertEmailContent content, Address address) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("hu.gdf.thesis.monitoring.alerts@gmail.com");
-        message.setTo(address.getAddress());
-        message.setSubject("Alert");
-        message.setText(content.toString());
-        mailSender.send(message);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("hu.gdf.thesis.monitoring.alerts@gmail.com");
+            message.setTo(address.getAddress());
+            message.setSubject("Alert");
+            message.setText(content.toString());
+            mailSender.send(message);
+        } catch (MailException ex) {
+
+        }
+
     }
 }

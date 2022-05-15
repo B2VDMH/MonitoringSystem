@@ -3,6 +3,9 @@ package hu.gdf.thesis.backend;
 import hu.gdf.thesis.model.config.Operation;
 import org.springframework.stereotype.Service;
 
+import static hu.gdf.thesis.backend.TypeConverter.tryParseBool;
+import static hu.gdf.thesis.backend.TypeConverter.tryParseInt;
+
 @Service
 public class OperationHandler {
 
@@ -62,7 +65,7 @@ public class OperationHandler {
                     }
                     break;
                 case "greater":
-                    if (operation.getValue() != null) {
+                    if (operation.getValue() != null|| !tryParseInt(operation.getValue()))  {
                         if (Integer.parseInt(fieldValue) > Integer.parseInt(operation.getValue())) {
                             executeAction(operation.getAction());
                             if(operation.isAlert()) {
@@ -72,7 +75,7 @@ public class OperationHandler {
                     }
                     break;
                 case "lesser":
-                    if (operation.getValue() != null) {
+                    if (operation.getValue() != null|| !tryParseInt(operation.getValue())) {
                         if (Integer.parseInt(fieldValue) < Integer.parseInt(operation.getValue())) {
                             executeAction(operation.getAction());
                             if(operation.isAlert()) {
@@ -98,7 +101,7 @@ public class OperationHandler {
                     }
                     break;
                 case "true":
-                    if (TypeConverter.tryParseBool(fieldValue)) {
+                    if (tryParseBool(fieldValue)) {
                         boolean entityFieldBoolValue = Boolean.parseBoolean(fieldValue);
                         if (entityFieldBoolValue) {
                             executeAction(operation.getAction());
@@ -109,7 +112,7 @@ public class OperationHandler {
                     }
                     break;
                 case "false":
-                    if (TypeConverter.tryParseBool(fieldValue)) {
+                    if (tryParseBool(fieldValue)) {
                         boolean entityFieldBoolValue = Boolean.parseBoolean(fieldValue);
                         if (!entityFieldBoolValue) {
                             executeAction(operation.getAction());

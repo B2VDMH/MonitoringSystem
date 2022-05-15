@@ -2,12 +2,16 @@ package hu.gdf.thesis.backend;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import hu.gdf.thesis.model.PathConfiguration;
 import hu.gdf.thesis.model.config.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,24 +27,31 @@ public class FileHandler {
     @Autowired
     PathConfiguration pathConfiguration;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
+
     public String readFromFile(String fileName) {
         try {
             if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
-                if(Files.exists(Path.of(pathConfiguration.getPath() + "\\" + fileName))) {
+                if (Files.exists(Path.of(pathConfiguration.getPath() + "\\" + fileName))) {
                     return new String(Files.readAllBytes(Paths.get(pathConfiguration.getPath() + "\\" + fileName)));
+                } else {
+                    LOGGER.warn("File " + fileName + " does not exist");
                 }
             } else {
-                if(Files.exists(Path.of(pathConfiguration.getPath() + "/" + fileName))) {
+                if (Files.exists(Path.of(pathConfiguration.getPath() + "/" + fileName))) {
                     return new String(Files.readAllBytes(Paths.get(pathConfiguration.getPath() + "/" + fileName)));
+                } else {
+                    LOGGER.warn("File " + fileName + " does not exist");
                 }
             }
         } catch (IOException ex) {
-
+            LOGGER.error("Unable to read from file", ex);
         }
         return null;
     }
 
     public Set<String> listFilesInDirectory() {
+
         return Stream.of(new File(pathConfiguration.getPath()).listFiles((d, name) -> name.endsWith(".json")))
                 .filter(file -> !file.isDirectory())
                 .map(File::getName)
@@ -53,60 +64,58 @@ public class FileHandler {
     }
 
     public <T> T deserializeJsonConfig(String configJson, Class<T> classOfT) {
-        Gson gson = new Gson();
-        return gson.fromJson(configJson, classOfT);
+        try {
+            Gson gson = new Gson();
+            return gson.fromJson(configJson, classOfT);
+        } catch (JsonSyntaxException ex) {
+            LOGGER.error("Exception occured when trying to deserialize Json file. ", ex);
+            return null;
+        }
     }
 
     public void createFile(String fileName) {
-        if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
-            try {
+        try {
+            if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
                 if (Files.notExists(Path.of(pathConfiguration.getPath() + "\\" + fileName + ".json"))) {
                     Files.createFile(Paths.get(pathConfiguration.getPath() + "\\" + fileName + ".json"));
                 }
-            } catch (IOException e) {
-                System.out.println(e);
-            }
-        } else {
-            try {
+            } else {
                 if (Files.notExists(Path.of(pathConfiguration.getPath() + "/" + fileName + ".json"))) {
                     Files.createFile(Paths.get(pathConfiguration.getPath() + "/" + fileName + ".json"));
                 }
-            } catch (IOException e) {
-                System.out.println(e);
             }
+        } catch (Exception ex) {
+            LOGGER.error("Error when creating file: " + fileName + ".json", ex);
         }
     }
 
     public void deleteFile(String fileName) {
-        if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
-            try {
+        try {
+            if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
                 Files.delete(Paths.get(pathConfiguration.getPath() + "\\" + fileName));
-            } catch (IOException e) {
-                System.out.println(e);
-            }
-        } else {
-            try {
+            } else {
                 Files.delete(Paths.get(pathConfiguration.getPath() + "/" + fileName));
-            } catch (IOException e) {
-                System.out.println(e);
             }
+        } catch (IOException ex) {
+            LOGGER.error("Error when deleting file: " + fileName + ".json", ex);
         }
+
     }
 
     public void writeConfigToFile(String fileName, String fileContent) {
         try {
             if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
-                if(Files.exists(Path.of(pathConfiguration.getPath() + "\\" + fileName))) {
+                if (Files.exists(Path.of(pathConfiguration.getPath() + "\\" + fileName))) {
                     Files.write(Paths.get(pathConfiguration.getPath() + "\\" + fileName), fileContent.getBytes());
                 }
             } else {
-                if(Files.exists(Path.of(pathConfiguration.getPath() + "/" + fileName))) {
+                if (Files.exists(Path.of(pathConfiguration.getPath() + "/" + fileName))) {
                     Files.write(Paths.get(pathConfiguration.getPath() + "/" + fileName), fileContent.getBytes());
                 }
             }
 
         } catch (IOException ex) {
-            System.out.println("Error when trying to save configuration data to the selected file" + "\n" + ex);
+            LOGGER.error("Error when trying to save configuration data to the selected file", ex);
         }
     }
 
@@ -131,21 +140,25 @@ public class FileHandler {
     }
 
     public void deleteCategory(String fileName, Config config, Category category) {
-        config.getServer().getCategories().remove(category);
 
+        config.getServer().getCategories().remove(category);
         writeConfigToFile(fileName, serializeJsonConfig(config));
+
     }
 
     public void deleteEntry(String fileName, Config config, Category category, Entry entry) {
+
         category.getEntries().remove(entry);
 
         int categoryIndex = config.getServer().getCategories().indexOf(category);
         config.getServer().getCategories().set(categoryIndex, category);
 
         writeConfigToFile(fileName, serializeJsonConfig(config));
+
     }
 
     public void deleteRestField(String fileName, Config config, Category category, Entry entry, RestField restField) {
+
         entry.getRestFields().remove(restField);
 
         int entryIndex = category.getEntries().indexOf(entry);
@@ -157,7 +170,8 @@ public class FileHandler {
         writeConfigToFile(fileName, serializeJsonConfig(config));
     }
 
-    public void deleteOperation(String fileName, Config config, Category category, Entry entry, RestField restField, Operation operation) {
+    public void deleteOperation(String fileName, Config config, Category category, Entry entry, RestField
+            restField, Operation operation) {
         restField.getOperation().remove(operation);
 
         int restFieldIndex = entry.getRestFields().indexOf(restField);
@@ -170,9 +184,11 @@ public class FileHandler {
         config.getServer().getCategories().set(categoryIndex, category);
 
         writeConfigToFile(fileName, serializeJsonConfig(config));
+
     }
 
-    public void deleteAddress(String fileName, Config config, Category category, Entry entry, RestField restField, Operation operation, Address address) {
+    public void deleteAddress(String fileName, Config config, Category category, Entry entry, RestField
+            restField, Operation operation, Address address) {
         operation.getAddresses().remove(address);
 
         int operationIndex = restField.getOperation().indexOf(operation);
