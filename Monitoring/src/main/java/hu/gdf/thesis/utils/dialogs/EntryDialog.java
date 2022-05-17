@@ -23,7 +23,7 @@ public class EntryDialog extends Dialog {
     public EntryDialog(String fileName, Config config, Category category, @Autowired FileHandler fileHandler) {
 
         TextField restURLFieldTF = new TextField("REST URL");
-        restURLFieldTF.setWidth("350px");
+        restURLFieldTF.setWidth("450px");
 
         Button cancelButton = new Button("Cancel", e -> this.close());
 

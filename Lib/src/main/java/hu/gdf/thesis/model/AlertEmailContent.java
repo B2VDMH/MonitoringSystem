@@ -1,5 +1,7 @@
 package hu.gdf.thesis.model;
 
+import hu.gdf.thesis.model.config.Address;
+
 public class AlertEmailContent {
 private String serverHost;
 private String category;
@@ -8,6 +10,7 @@ private String fieldPath;
 private String fieldValue;
 private String operator;
 private String value;
+private Address address;
 
 
     public String getServerHost() {
@@ -66,6 +69,13 @@ private String value;
         this.value = value;
     }
 
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 
     @Override
     public String toString() {
@@ -74,8 +84,8 @@ private String value;
                 "Category: " + category + "\n" +
                 "REST URL: " + restURL + "\n" +
                 "Field Path: " + fieldPath + "\n" +
-                "Expected: " + fieldValue + "\n" +
+                "Expected: " + value + "\n" +
                 "operator: " + operator + "\n" +
-                "Found instead: " + value;
+                "Found instead: " + fieldValue;
     }
 }

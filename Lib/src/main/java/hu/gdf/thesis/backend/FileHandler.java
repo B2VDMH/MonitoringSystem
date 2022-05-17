@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,18 +30,10 @@ public class FileHandler {
 
     public String readFromFile(String fileName) {
         try {
-            if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
-                if (Files.exists(Path.of(pathConfiguration.getPath() + "\\" + fileName))) {
-                    return new String(Files.readAllBytes(Paths.get(pathConfiguration.getPath() + "\\" + fileName)));
-                } else {
-                    LOGGER.warn("File " + fileName + " does not exist");
-                }
+            if (Files.exists(Path.of(pathConfiguration.getPath() + File.separator + fileName))) {
+                return new String(Files.readAllBytes(Paths.get(pathConfiguration.getPath() + File.separator + fileName)));
             } else {
-                if (Files.exists(Path.of(pathConfiguration.getPath() + "/" + fileName))) {
-                    return new String(Files.readAllBytes(Paths.get(pathConfiguration.getPath() + "/" + fileName)));
-                } else {
-                    LOGGER.warn("File " + fileName + " does not exist");
-                }
+                LOGGER.warn("File " + fileName + " does not exist");
             }
         } catch (IOException ex) {
             LOGGER.error("Unable to read from file", ex);
@@ -75,14 +66,9 @@ public class FileHandler {
 
     public void createFile(String fileName) {
         try {
-            if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
-                if (Files.notExists(Path.of(pathConfiguration.getPath() + "\\" + fileName + ".json"))) {
-                    Files.createFile(Paths.get(pathConfiguration.getPath() + "\\" + fileName + ".json"));
-                }
-            } else {
-                if (Files.notExists(Path.of(pathConfiguration.getPath() + "/" + fileName + ".json"))) {
-                    Files.createFile(Paths.get(pathConfiguration.getPath() + "/" + fileName + ".json"));
-                }
+            if (Files.notExists(Path.of(pathConfiguration.getPath() + File.separator + fileName + ".json"))) {
+                Files.createFile(Paths.get(pathConfiguration.getPath() + File.separator + fileName + ".json"));
+                LOGGER.info("Created Config: " + pathConfiguration.getPath() + File.separator + fileName + ".json");
             }
         } catch (Exception ex) {
             LOGGER.error("Error when creating file: " + fileName + ".json", ex);
@@ -91,29 +77,19 @@ public class FileHandler {
 
     public void deleteFile(String fileName) {
         try {
-            if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
-                Files.delete(Paths.get(pathConfiguration.getPath() + "\\" + fileName));
-            } else {
-                Files.delete(Paths.get(pathConfiguration.getPath() + "/" + fileName));
-            }
+            Files.deleteIfExists(Paths.get(pathConfiguration.getPath() + File.separator + fileName));
+            LOGGER.info("Deleted Config: " + pathConfiguration.getPath() + File.separator + fileName);
         } catch (IOException ex) {
             LOGGER.error("Error when deleting file: " + fileName + ".json", ex);
         }
-
     }
 
     public void writeConfigToFile(String fileName, String fileContent) {
         try {
-            if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
-                if (Files.exists(Path.of(pathConfiguration.getPath() + "\\" + fileName))) {
-                    Files.write(Paths.get(pathConfiguration.getPath() + "\\" + fileName), fileContent.getBytes());
-                }
-            } else {
-                if (Files.exists(Path.of(pathConfiguration.getPath() + "/" + fileName))) {
-                    Files.write(Paths.get(pathConfiguration.getPath() + "/" + fileName), fileContent.getBytes());
-                }
+            if (Files.exists(Path.of(pathConfiguration.getPath() + File.separator + fileName + ".json"))) {
+                Files.write(Paths.get(pathConfiguration.getPath() + File.separator + fileName + ".json"), fileContent.getBytes());
+                LOGGER.info("Saved Config: " + pathConfiguration.getPath() + File.separator + fileName + ".json");
             }
-
         } catch (IOException ex) {
             LOGGER.error("Error when trying to save configuration data to the selected file", ex);
         }

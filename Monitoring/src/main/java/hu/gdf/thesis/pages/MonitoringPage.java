@@ -31,6 +31,8 @@ public class MonitoringPage extends VerticalLayout {
     static Config config = new Config();
     static String fileName = "";
     private boolean checkTimerState;
+    private List<Response> responseList = new ArrayList<>();
+    private GridListDataView<Response> responseDataView;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringPage.class);
 
@@ -43,48 +45,8 @@ public class MonitoringPage extends VerticalLayout {
         fileSelect.setHelperText("Select the server you wish to monitor.");
 
         this.add(new AppHeader(), fileSelect);
-
-        fileSelect.addValueChangeListener(e -> {
-            try {
-                fileName = String.valueOf(fileSelect.getValue());
-                config = fileHandler.deserializeJsonConfig(fileHandler.readFromFile(fileName), Config.class);
-
-                VerticalLayout gridLayout = new VerticalLayout();
-                HorizontalLayout timerLayout = new HorizontalLayout();
-
-                SimpleTimer timer = new SimpleTimer(new BigDecimal(config.getServer().getRefreshTimer()));
-
-                timer.addTimerEndEvent(timerEndedEvent -> {
-                    gridLayout.removeAll();
-                    gridLayout.add(buildMonitoringGrid(fileHandler, restClient));
-                    timer.reset();
-                    timer.start();
-                });
-
-                Button timerButton = new Button("Start/Pause");
-                timerButton.addClickListener(buttonClickEvent -> {
-                    if (checkTimerState) {
-                        timer.pause();
-                        checkTimerState = false;
-                    } else {
-                        timer.start();
-                        checkTimerState = true;
-                    }
-                });
-
-                timer.start();
-                timerLayout.add(timer, timerButton);
-                gridLayout.removeAll();
-                gridLayout.add(buildMonitoringGrid(fileHandler, restClient));
-                this.add(timerLayout, gridLayout);
-            } catch (Exception ex) {
-                LOGGER.error("File Selection error", ex);
-            }
-        });
-
-    }
-
-    public Grid<Response> buildMonitoringGrid(FileHandler fileHandler, RestClient restClient) {
+        VerticalLayout gridLayout = new VerticalLayout();
+        HorizontalLayout timerLayout = new HorizontalLayout();
 
         Grid<Response> monitoringGrid = new Grid<>(Response.class, false);
 
@@ -96,37 +58,70 @@ public class MonitoringPage extends VerticalLayout {
         Grid.Column<Response> fieldValueColumn = monitoringGrid.addColumn(Response::getFieldValue).setHeader("Value").setSortable(true).setFlexGrow(0).setAutoWidth(true);
         monitoringGrid.setClassNameGenerator(Response::getColor);
 
-        //Building Grid rows based on config file data
-        try {
-            List<Response> responseList = new ArrayList<>();
+        responseDataView = monitoringGrid.setItems();
 
-            config = fileHandler.deserializeJsonConfig(fileHandler.readFromFile(fileName), Config.class);
+        //Grid Component's Filter Headers based on createFilterHeader static component
+        monitoringGrid.getHeaderRows().clear();
+        HeaderRow headerRow = monitoringGrid.appendHeaderRow();
+        Filter filter = new Filter(responseDataView);
+        headerRow.getCell(serverHostColumn).setComponent(
+                createFilterHeader(filter::setServerHost));
+        headerRow.getCell(categoryColumn).setComponent(
+                createFilterHeader(filter::setCategory));
+        headerRow.getCell(restURLColumn).setComponent(
+                createFilterHeader(filter::setRestURL));
+        headerRow.getCell(fieldPathColumn).setComponent(
+                createFilterHeader(filter::setFieldPath));
+        headerRow.getCell(fieldValueColumn).setComponent(
+                createFilterHeader(filter::setFieldValue));
 
-            ResponseHandler responseHandler = new ResponseHandler();
 
-            responseHandler.buildResponseList(config, restClient, responseList);
+        gridLayout.add(monitoringGrid);
+        this.add(timerLayout, gridLayout);
+        fileSelect.addValueChangeListener(e -> {
+            try {
+                timerLayout.removeAll();
+                fileName = String.valueOf(fileSelect.getValue());
+                config = fileHandler.deserializeJsonConfig(fileHandler.readFromFile(fileName), Config.class);
 
-            //Filling grid rows with updated responseList
-            GridListDataView<Response> responseDataView = monitoringGrid.setItems(responseList);
+                ResponseHandler responseHandler = new ResponseHandler();
+                responseHandler.buildResponseList(config, restClient,responseList);
+                responseDataView = monitoringGrid.setItems(responseList);
 
-            //Grid Component's Filter Headers based on createFilterHeader static component
-            monitoringGrid.getHeaderRows().clear();
-            HeaderRow headerRow = monitoringGrid.appendHeaderRow();
-            Filter filter = new Filter(responseDataView);
-            headerRow.getCell(serverHostColumn).setComponent(
-                    createFilterHeader(filter::setServerHost));
-            headerRow.getCell(categoryColumn).setComponent(
-                    createFilterHeader(filter::setCategory));
-            headerRow.getCell(restURLColumn).setComponent(
-                    createFilterHeader(filter::setRestURL));
-            headerRow.getCell(fieldPathColumn).setComponent(
-                    createFilterHeader(filter::setFieldPath));
-            headerRow.getCell(fieldValueColumn).setComponent(
-                    createFilterHeader(filter::setFieldValue));
-        } catch (Exception ex) {
-            LOGGER.error("Error when building Monitoring Grid", ex);
-        }
-        return monitoringGrid;
+                SimpleTimer timer = new SimpleTimer(new BigDecimal(config.getServer().getRefreshTimer()));
+                Button timerButton = new Button("Start/Pause");
+
+                timerButton.addClickListener(buttonClickEvent -> {
+                    if (checkTimerState) {
+                        timer.pause();
+                        checkTimerState = false;
+                    } else {
+                        timer.start();
+                        checkTimerState = true;
+                    }
+                });
+                timerLayout.add(timer,timerButton);
+
+                timer.addTimerEndEvent(timerEndedEvent -> {
+                    try {
+                        responseHandler.buildResponseList(config, restClient,responseList);
+                        responseDataView = monitoringGrid.setItems(responseList);
+
+                        timer.reset();
+                        timer.start();
+                    } catch (Exception ex ) {
+                        LOGGER.error("Exception occured at timer start: " + ex.getLocalizedMessage());
+                    }
+
+                });
+
+                timer.start();
+
+            } catch (Exception ex) {
+                LOGGER.error("File Selection error", ex);
+            }
+        });
+
     }
 
     //Filter Header Component

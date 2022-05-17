@@ -14,6 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 public class ConfigCreatorDialog extends Dialog {
     private boolean saveState;
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigCreatorDialog.class);
@@ -47,8 +51,12 @@ public class ConfigCreatorDialog extends Dialog {
         saveButton.addClickListener(buttonClickEvent -> {
             try {
                 if (fileNameField.getValue().isEmpty() || serverHostTF.getValue().isEmpty()
-                        || portField.getValue() == null || timerField.getValue() == null) {
+                        || portField.getValue() == null || timerField.getValue() == null || portField.getValue() <= 0
+                        || portField.getValue() > 65535 || timerField.getValue() < 10 || timerField.getValue() > 600) {
                     CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
+                    errorNotification.open();
+                } else if (Files.exists(Path.of(fileNameField.getValue() + "+json"))) {
+                    CustomNotification errorNotification = new CustomNotification("Save failed - File already exists.");
                     errorNotification.open();
                 } else {
                     Config config = new Config();
@@ -61,7 +69,7 @@ public class ConfigCreatorDialog extends Dialog {
 
                     fileHandler.createFile(fileNameField.getValue());
 
-                    fileHandler.writeConfigToFile(fileNameField.getValue() + ".json", fileHandler.serializeJsonConfig(config));
+                    fileHandler.writeConfigToFile(fileNameField.getValue(), fileHandler.serializeJsonConfig(config));
                     saveState = true;
                     this.close();
                 }
