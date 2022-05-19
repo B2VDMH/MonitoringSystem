@@ -50,7 +50,7 @@ public class EntryDialog extends Dialog {
                     saveState = true;
                     this.close();
                 }
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 log.error("Entry Dialog produced error, when trying to save", ex);
             }
         });

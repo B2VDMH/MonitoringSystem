@@ -9,8 +9,13 @@ public class AppHeader extends HorizontalLayout {
 		//Menu Buttons to navigate between pages
 
 		MenuBar menuBar = new MenuBar();
+		MenuItem homeMenuItem = menuBar.addItem("Home Page");
 		MenuItem monitoringMenuItem = menuBar.addItem("Monitoring Page");
 		MenuItem configPageMenuItem = menuBar.addItem("Config Creator Page");
+
+		homeMenuItem.addClickListener((t) -> {
+			homeMenuItem.getUI().ifPresent(ui -> ui.navigate(""));
+		});
 
 		monitoringMenuItem.addClickListener((t) -> {
 			monitoringMenuItem.getUI().ifPresent(ui -> ui.navigate("monitoring"));

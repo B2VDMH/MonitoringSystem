@@ -41,16 +41,18 @@ public class EditEntryDialog extends Dialog {
         saveButton.addClickListener(buttonClickEvent -> {
             try {
                 if (restURLFieldTF.getValue().isEmpty() || alertSelect.isEmpty()) {
+
                     CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
                     errorNotification.open();
+
                 } else {
                     entry.setRestURL(restURLFieldTF.getValue().trim());
                     entry.setAlert((Boolean) alertSelect.getValue());
                     this.entry = entry;
-                    fileHandler.deleteOrEditEntry(fileName, config, category, this.entry, "edit");
+                    fileHandler.deleteOrEditEntry(fileName, config, category, this.entry, true);
                     this.close();
                 }
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 log.error("Edit Entry Dialog produced error, when trying to save", ex);
             }
         });
@@ -62,11 +64,12 @@ public class EditEntryDialog extends Dialog {
                 confirmDialog.addDetachListener(detachEvent -> {
                     if(confirmDialog.isDeleteState()) {
                         deleteState = true;
+                        fileHandler.deleteOrEditEntry(fileName, config, category, entry, false);
                         this.close();
                     }
                 });
 
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 log.error("Edit Entry Dialog produced error, when trying to delete", ex);
             }
         });

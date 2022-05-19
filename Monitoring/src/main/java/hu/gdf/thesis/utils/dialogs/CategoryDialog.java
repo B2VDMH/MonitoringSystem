@@ -45,7 +45,7 @@ public class CategoryDialog extends Dialog {
                     saveState = true;
                     this.close();
 
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 log.error("Category Dialog produced error, when trying to save", ex);
             }
 

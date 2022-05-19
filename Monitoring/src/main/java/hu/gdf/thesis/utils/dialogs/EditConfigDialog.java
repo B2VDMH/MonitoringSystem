@@ -113,7 +113,7 @@ public class EditConfigDialog extends Dialog {
                 }
 
 
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 LOGGER.error("Config Editor Dialog produced error, when trying to delete address.", ex);
             }
         });
@@ -125,12 +125,12 @@ public class EditConfigDialog extends Dialog {
                 confirmDialog.open();
                 confirmDialog.addDetachListener(detachEvent -> {
                     if (confirmDialog.isDeleteState()) {
-                        fileHandler.deleteFile(fileName);
                         saveState = true;
+                        fileHandler.deleteFile(fileName);
                         this.close();
                     }
                 });
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 LOGGER.error("Config Editor Dialog produced error, when trying to delete config", ex);
             }
         });

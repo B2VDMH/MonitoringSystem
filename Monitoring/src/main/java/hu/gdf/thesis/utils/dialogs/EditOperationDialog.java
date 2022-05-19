@@ -20,7 +20,7 @@ public class EditOperationDialog extends Dialog {
     @Getter
     private Operation operation = new Operation();
     @Getter
-    private boolean saveState = false;
+    private boolean deleteState = false;
 
     public EditOperationDialog(String fileName, Config config, Category category, Entry entry, RestField restField
             , Operation operation, @Autowired FileHandler fileHandler) {
@@ -50,8 +50,10 @@ public class EditOperationDialog extends Dialog {
         saveButton.addClickListener( buttonClickEvent -> {
             try {
                 if(operatorSelect.isEmpty() || valueTF.getValue().isEmpty() || actionSelect.isEmpty() || alertSelect.isEmpty()) {
+
                     CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
                     errorNotification.open();
+
                 } else {
                     operation.setOperator(String.valueOf(operatorSelect.getValue()));
                     operation.setValue(valueTF.getValue());
@@ -59,12 +61,11 @@ public class EditOperationDialog extends Dialog {
                     operation.setAlert((Boolean) alertSelect.getValue());
 
                     this.operation = operation;
-                    fileHandler.deleteOrEditOperation(fileName, config, category, entry, restField, this.operation, "edit");
+                    fileHandler.deleteOrEditOperation(fileName, config, category, entry, restField, this.operation, true);
 
-                    saveState=true;
                     this.close();
                 }
-            } catch (Exception ex){
+            } catch (NullPointerException ex){
                 log.error("Edit Operation Dialog produced error, when trying to save", ex);
             }
 
@@ -73,18 +74,17 @@ public class EditOperationDialog extends Dialog {
         Button deleteButton = new Button("Delete Operation");
         deleteButton.addClickListener(buttonClickEvent -> {
             try {
-                this.operation = operation;
-
                 ConfirmDialog confirmDialog = new ConfirmDialog(operation.toString());
                 confirmDialog.open();
                 confirmDialog.addDetachListener(detachEvent -> {
                     if(confirmDialog.isDeleteState()) {
-                        saveState = true;
+                        deleteState = true;
+                        fileHandler.deleteOrEditOperation(fileName, config, category, entry, restField, operation, false);
                         this.close();
                     }
                 });
 
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 log.error("Edit Operation Dialog produced error, when trying to delete", ex);
             }
         });

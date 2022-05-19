@@ -22,12 +22,8 @@ public class ConfirmDialog extends Dialog {
         Button cancelButton = new Button("Cancel", buttonClickEvent -> this.close());
         Button confirmButton = new Button("Confirm");
         confirmButton.addClickListener(buttonClickEvent -> {
-            try {
-                deleteState=true;
-                this.close();
-            } catch (Exception ex) {
-                log.error("Confirmation Dialog produced error, when trying to delete", ex);
-            }
+            deleteState = true;
+            this.close();
         });
         this.setCloseOnOutsideClick(false);
 

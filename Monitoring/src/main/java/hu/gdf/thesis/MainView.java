@@ -24,12 +24,19 @@ public class MainView extends VerticalLayout implements AppShellConfigurator {
 		VerticalLayout pageLayout = new VerticalLayout();
 		H2 titleText = new H2("Monitoring System - Home Page");
 		H3 informationHeaderText = new H3("Usage Information");
-		Label informationText = new Label("This web application was developed to monitor simulated application servers with REST API. " +
-				"The information required to build REST requests, are stored in JSON Configuration files. " +
+		Label informationText = new Label("This web application was developed for developers and application server administrators,"
+				+ "to help monitor application servers with REST API. " +
+				"The information required to build requests, are stored in JSON Configuration files. " +
 				"To create, or edit Configuration files, please click on the \"Config Creator Page\" button, to navigate to the Config Creator page. " +
 				"If you already have Configuration files set up, click on the \"Monitoring Page\" button to navigate to the Monitoring Page.");
+
+		H3 authorInformationHeaderText = new H3("Author information");
+		Label authorName = new Label("Author: Varga Balázs");
+		Label neptunCode = new Label("Neptun code: B2VDMH");
+		Label email = new Label("    E-mail address: varga.balazs0428@gmail.com");
+
 		this.add(titleText);
-		pageLayout.add(informationHeaderText, informationText);
+		pageLayout.add(informationHeaderText, informationText, authorInformationHeaderText, authorName, neptunCode, email);
 		this.add(pageLayout);
 	}
 }

@@ -35,17 +35,19 @@ public class EditRestFieldDialog extends Dialog {
         saveButton.addClickListener( buttonClickEvent -> {
             try {
                 if(restFieldPathTF.getValue().isEmpty()){
+
                     CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
                     errorNotification.open();
+
                 } else {
                     restField.setFieldPath(restFieldPathTF.getValue().trim());
                     this.restField = restField;
-                    fileHandler.deleteOrEditRestField(fileName, config, category, entry, this.restField, "edit");
-                    deleteState =true;
+                    fileHandler.deleteOrEditRestField(fileName, config, category, entry, this.restField, true);
+
                     this.close();
                 }
 
-            }catch (Exception ex) {
+            }catch (NullPointerException ex) {
                 log.error("Edit Rest Field Dialog produced error, when trying to save", ex);
             }
         });
@@ -53,18 +55,17 @@ public class EditRestFieldDialog extends Dialog {
         Button deleteButton = new Button("Delete Rest Field");
         deleteButton.addClickListener(buttonClickEvent -> {
             try {
-
-                this.restField = restField;
                 ConfirmDialog confirmDialog = new ConfirmDialog(restField.getFieldPath());
                 confirmDialog.open();
                 confirmDialog.addDetachListener(detachEvent -> {
                     if(confirmDialog.isDeleteState()) {
                         deleteState = true;
+                        fileHandler.deleteOrEditRestField(fileName, config, category, entry, restField, false);
                         this.close();
                     }
                 });
 
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 log.error("Edit Operation Dialog produced error, when trying to delete", ex);
             }
         });

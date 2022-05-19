@@ -91,7 +91,7 @@ public class ConfigCreatorDialog extends Dialog {
 
                 }
 
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 log.error("Config Creator Dialog produced error, when trying to save", ex);
             }
         });

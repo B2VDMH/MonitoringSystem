@@ -37,16 +37,18 @@ public class EditCategoryDialog extends Dialog {
         saveButton.addClickListener( buttonClickEvent -> {
             try {
                 if (categoryTypeField.getValue().isEmpty()) {
+
                     CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
                     errorNotification.open();
+
                 }
                 category.setType(categoryTypeField.getValue());
                 this.category = category;
 
-                fileHandler.deleteOrEditCategory(fileName, config, this.category, "edit");
+                fileHandler.deleteOrEditCategory(fileName, config, this.category, true);
                 this.close();
 
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 log.error("Edit Category Dialog produced error, when trying to save", ex);
             }
 
@@ -54,17 +56,17 @@ public class EditCategoryDialog extends Dialog {
         Button deleteButton = new Button("Delete Category");
         deleteButton.addClickListener(buttonClickEvent -> {
             try {
-                this.category = category;
                 ConfirmDialog confirmDialog = new ConfirmDialog(category.getType());
                 confirmDialog.open();
                 confirmDialog.addDetachListener(detachEvent -> {
                     if(confirmDialog.isDeleteState()) {
                         deleteState = true;
+                        fileHandler.deleteOrEditCategory(fileName, config, category, false);
                         this.close();
                     }
                 });
 
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 log.error("Edit Category Dialog produced error, when trying to delete", ex);
             }
         });

@@ -62,176 +62,130 @@ public class ConfigCreatorPage extends VerticalLayout {
 
         Button createFileButton = new Button("Create new config");
         createFileButton.addClickListener(buttonClickEvent -> {
-            try {
-                ConfigCreatorDialog configCreatorDialog = new ConfigCreatorDialog(fileHandler);
-                configCreatorDialog.open();
-                configCreatorDialog.addDetachListener(detachEvent -> {
-                    if (configCreatorDialog.isSaveState()) {
-                        UI.getCurrent().getPage().reload();
-                    }
-                });
-            } catch (Exception ex) {
-                log.error("Error when trying create config", ex);
-            }
+
+            ConfigCreatorDialog configCreatorDialog = new ConfigCreatorDialog(fileHandler);
+            configCreatorDialog.open();
+            configCreatorDialog.addDetachListener(detachEvent -> {
+                if (configCreatorDialog.isSaveState()) {
+                    UI.getCurrent().getPage().reload();
+                }
+            });
         });
 
         Button editFileButton = new Button("Edit server data");
         editFileButton.addClickListener(buttonClickEvent -> {
-            try {
-                EditConfigDialog editConfigDialog = new EditConfigDialog(String.valueOf(fileSelect.getValue()), fileHandler);
-                editConfigDialog.open();
-                editConfigDialog.addDetachListener(detachEvent -> {
-                    if (editConfigDialog.isSaveState()) {
-                        UI.getCurrent().getPage().reload();
-                    }
-                });
-            } catch (Exception ex) {
-                log.error("Error editing server data in config file", ex);
-            }
 
+            EditConfigDialog editConfigDialog = new EditConfigDialog(String.valueOf(fileSelect.getValue()), fileHandler);
+            editConfigDialog.open();
+            editConfigDialog.addDetachListener(detachEvent -> {
+                if (editConfigDialog.isSaveState()) {
+                    UI.getCurrent().getPage().reload();
+                }
+            });
         });
-
 
         Button addCategoryButton = new Button("Add Category");
         addCategoryButton.addClickListener(buttonClickEvent -> {
-            try {
-                CategoryDialog categoryDialog = new CategoryDialog(fileName, config, fileHandler);
-                categoryDialog.open();
-                categoryDialog.addDetachListener(detachEvent -> {
-                    if (categoryDialog.isSaveState()) {
-                        categoryDataView.addItem(categoryDialog.getCategory());
-                    }
-                });
-            } catch (Exception ex) {
-                log.error("Error when trying to add Category to config", ex);
-            }
 
+            CategoryDialog categoryDialog = new CategoryDialog(fileName, config, fileHandler);
+            categoryDialog.open();
+            categoryDialog.addDetachListener(detachEvent -> {
+                if (categoryDialog.isSaveState()) {
+                    categoryDataView.addItem(categoryDialog.getCategory());
+                }
+            });
         });
 
         Button editCategoryButton = new Button("Edit Category");
         editCategoryButton.addClickListener(buttonClickEvent -> {
-            try {
-                EditCategoryDialog editCategoryDialog = new EditCategoryDialog(fileName, config, category, fileHandler);
-                editCategoryDialog.open();
-                editCategoryDialog.addDetachListener(detachEvent -> {
-                    if (!editCategoryDialog.isDeleteState()) {
-                        categoryDataView.refreshAll();
-                    } else {
-                        fileHandler.deleteOrEditCategory(fileName, config, category, "delete");
-                        categoryDataView.removeItem(category);
-                    }
-                });
 
-            } catch (Exception ex) {
-                log.error("Error when editing Category", ex);
-            }
-
+            EditCategoryDialog editCategoryDialog = new EditCategoryDialog(fileName, config, category, fileHandler);
+            editCategoryDialog.open();
+            editCategoryDialog.addDetachListener(detachEvent -> {
+                if (!editCategoryDialog.isDeleteState()) {
+                    categoryDataView.refreshAll();
+                } else {
+                    categoryDataView.removeItem(category);
+                }
+            });
         });
+
         Button addEntryButton = new Button("Add Entry");
         addEntryButton.addClickListener(buttonClickEvent -> {
-            try {
-                EntryDialog entryDialog = new EntryDialog(fileName, config, category, fileHandler);
-                entryDialog.open();
-                entryDialog.addDetachListener(detachEvent -> {
-                    if (entryDialog.isSaveState()) {
-                        entryDataView.addItem(entryDialog.getEntry());
-                    }
-                });
-            } catch (Exception ex) {
-                log.error("Error when trying to add Entry to config", ex);
-            }
 
+            EntryDialog entryDialog = new EntryDialog(fileName, config, category, fileHandler);
+            entryDialog.open();
+            entryDialog.addDetachListener(detachEvent -> {
+                if (entryDialog.isSaveState()) {
+                    entryDataView.addItem(entryDialog.getEntry());
+                }
+            });
         });
+
         Button editEntryButton = new Button("Edit Entry");
         editEntryButton.addClickListener(buttonClickEvent -> {
-            try {
-                EditEntryDialog editEntryDialog = new EditEntryDialog(fileName, config, category, entry, fileHandler);
-                editEntryDialog.open();
-                editEntryDialog.addDetachListener(detachEvent -> {
-                    if (!editEntryDialog.isDeleteState()) {
-                        entryDataView.refreshAll();
-                    } else {
-                        fileHandler.deleteOrEditEntry(fileName, config, category, entry, "delete");
-                        entryDataView.removeItem(entry);
-                    }
 
-                });
-            } catch (Exception ex) {
-                log.error("Error when editing Entry", ex);
-            }
-
+            EditEntryDialog editEntryDialog = new EditEntryDialog(fileName, config, category, entry, fileHandler);
+            editEntryDialog.open();
+            editEntryDialog.addDetachListener(detachEvent -> {
+                if (!editEntryDialog.isDeleteState()) {
+                    entryDataView.refreshAll();
+                } else {
+                    entryDataView.removeItem(entry);
+                }
+            });
         });
 
         Button addRestFieldButton = new Button("Add REST Field Path");
         addRestFieldButton.addClickListener(buttonClickEvent -> {
-            try {
-                RestFieldDialog restFieldDialog = new RestFieldDialog(fileName, config, category, entry, fileHandler);
-                restFieldDialog.open();
-                restFieldDialog.addDetachListener(detachEvent -> {
-                    if (restFieldDialog.isSaveState()) {
-                        restFieldDataView.addItem(restFieldDialog.getRestField());
-                    }
-                });
-            } catch (Exception ex) {
-                log.error("Error when trying to add Rest Field Path to config", ex);
-            }
 
+            RestFieldDialog restFieldDialog = new RestFieldDialog(fileName, config, category, entry, fileHandler);
+            restFieldDialog.open();
+            restFieldDialog.addDetachListener(detachEvent -> {
+                if (restFieldDialog.isSaveState()) {
+                    restFieldDataView.addItem(restFieldDialog.getRestField());
+                }
+            });
         });
 
         Button editRestFieldButton = new Button("Edit REST Field Path");
         editRestFieldButton.addClickListener(buttonClickEvent -> {
-            try {
-                EditRestFieldDialog editRestFieldDialog = new EditRestFieldDialog(fileName, config, category, entry, restField, fileHandler);
-                editRestFieldDialog.open();
-                editRestFieldDialog.addDetachListener(detachEvent -> {
-                    if (!editRestFieldDialog.isDeleteState()) {
-                        restFieldDataView.refreshAll();
-                    } else {
-                        fileHandler.deleteOrEditRestField(fileName, config, category, entry, restField, "delete");
-                        restFieldDataView.removeItem(restField);
-                    }
-                });
-            } catch (Exception ex) {
-                log.error("Error when editing RestField Path", ex);
-            }
 
+            EditRestFieldDialog editRestFieldDialog = new EditRestFieldDialog(fileName, config, category, entry, restField, fileHandler);
+            editRestFieldDialog.open();
+            editRestFieldDialog.addDetachListener(detachEvent -> {
+                if (!editRestFieldDialog.isDeleteState()) {
+                    restFieldDataView.refreshAll();
+                } else {
+                    restFieldDataView.removeItem(restField);
+                }
+            });
         });
 
         Button addOperationButton = new Button("Add Operation");
         addOperationButton.addClickListener(buttonClickEvent -> {
-            try {
-                OperationDialog operationDialog = new OperationDialog(fileName, config, category, entry, restField, fileHandler);
-                operationDialog.open();
-                operationDialog.addDetachListener(detachEvent -> {
-                    if (operationDialog.isSaveState()) {
-                        operationDataView.addItem(operationDialog.getOperation());
-                    }
-                });
-            } catch (Exception ex) {
-                log.error("Error when trying to add Operation to config", ex);
-            }
 
+            OperationDialog operationDialog = new OperationDialog(fileName, config, category, entry, restField, fileHandler);
+            operationDialog.open();
+            operationDialog.addDetachListener(detachEvent -> {
+                if (operationDialog.isSaveState()) {
+                    operationDataView.addItem(operationDialog.getOperation());
+                }
+            });
         });
         Button editOperationButton = new Button("Edit Operation");
         editOperationButton.addClickListener(buttonClickEvent -> {
-            try {
-                EditOperationDialog editOperationDialog = new EditOperationDialog(fileName, config, category, entry, restField, operation, fileHandler);
-                editOperationDialog.open();
-                editOperationDialog.addDetachListener(detachEvent -> {
-                    if (!editOperationDialog.isDeleteState()) {
-                        operationDataView.refreshAll();
-                    } else {
-                        fileHandler.deleteOrEditOperation(fileName, config, category, entry, restField, operation, "delete");
-                        operationDataView.removeItem(operation);
-                    }
 
-                });
-            } catch (Exception ex) {
-                log.error("Error when editing RestField Path", ex);
-            }
-
+            EditOperationDialog editOperationDialog = new EditOperationDialog(fileName, config, category, entry, restField, operation, fileHandler);
+            editOperationDialog.open();
+            editOperationDialog.addDetachListener(detachEvent -> {
+                if (!editOperationDialog.isDeleteState()) {
+                    operationDataView.refreshAll();
+                } else {
+                    operationDataView.removeItem(operation);
+                }
+            });
         });
-
 
         fileSelect.addValueChangeListener(f -> {
             try {
@@ -247,7 +201,9 @@ public class ConfigCreatorPage extends VerticalLayout {
 
                 categoryDataView = (SelectListDataView<Category>) categorySelect.setItems(fileHandler.getAllCategories(config));
                 categorySelect.addValueChangeListener(c -> {
+
                     category = (Category) categorySelect.getValue();
+
                     try {
                         entrySelect.clear();
                         restFieldSelect.clear();
@@ -277,33 +233,34 @@ public class ConfigCreatorPage extends VerticalLayout {
 
                                         operationDataView = (SelectListDataView<Operation>) operationSelect.setItems(fileHandler.getAllOperations(restField));
                                         operationSelect.addValueChangeListener(o -> {
+
                                             operation = (Operation) operationSelect.getValue();
+
                                         });
 
                                         operationLayout.add(operationSelect, addOperationButton, editOperationButton);
-                                    } catch (NullPointerException ignored) {
-                                        log.debug("Non critical null pointer Exception");
+
                                     } catch (Exception ex) {
                                         log.error("Error at setting RestField", ex);
                                     }
                                 });
+
                                 restFieldLayout.add(restFieldSelect, addRestFieldButton, editRestFieldButton);
-                            } catch (NullPointerException ignored) {
-                                log.debug("Non critical null pointer Exception");
+
                             } catch (Exception ex) {
                                 log.error("Error at setting Entry", ex);
                             }
                         });
+
                         entryLayout.add(entrySelect, addEntryButton, editEntryButton);
-                    } catch (NullPointerException ignored) {
-                        log.debug("Non critical null pointer Exception");
+
                     } catch (Exception ex) {
                         log.error("Error at setting Category", ex);
                     }
                 });
+
                 categoryLayout.add(categorySelect, addCategoryButton, editCategoryButton);
-            } catch (NullPointerException ignored) {
-                log.debug("Non critical null pointer Exception");
+
             } catch (Exception ex) {
                 log.error("Error at setting Config", ex);
             }

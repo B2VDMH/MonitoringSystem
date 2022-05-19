@@ -8,6 +8,7 @@ import hu.gdf.thesis.model.config.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -74,7 +75,7 @@ public class FileHandler {
     public void deleteFile(String fileName) {
         try {
             String filePath = pathConfiguration.getPath() + File.separator + fileName;
-            if(Files.exists(Path.of(filePath))) {
+            if (Files.exists(Path.of(filePath))) {
                 Files.delete(Paths.get(pathConfiguration.getPath() + File.separator + fileName));
                 log.info("Deleted Config: " + pathConfiguration.getPath() + File.separator + fileName);
             } else {
@@ -91,7 +92,7 @@ public class FileHandler {
             String filePath = pathConfiguration.getPath() + File.separator + fileName;
             if (Files.exists(Path.of(filePath))) {
                 Files.write(Paths.get(filePath), fileContent.getBytes());
-                log.info("Saved Config: " + pathConfiguration.getPath() + File.separator + fileName );
+                log.info("Saved Config: " + pathConfiguration.getPath() + File.separator + fileName);
             } else {
                 log.warn("Warning, file was not found in directory: " + pathConfiguration.getPath());
             }
@@ -120,96 +121,141 @@ public class FileHandler {
     //Lists of specific objects in deserialized json object
 
     public List<Category> getAllCategories(Config config) {
-        return new ArrayList<>(config.getServer().getCategories());
+        try {
+            return new ArrayList<>(config.getServer().getCategories());
+        } catch (NullPointerException ex) {
+            return new ArrayList<>();
+        }
     }
+
     public List<Address> getAllAddresses(Config config) {
-        return new ArrayList<>(config.getServer().getAddresses());
+        try {
+            return new ArrayList<>(config.getServer().getAddresses());
+        } catch (NullPointerException ex) {
+            return new ArrayList<>();
+        }
     }
 
     public List<Entry> getAllEntries(Category category) {
-        return new ArrayList<>(category.getEntries());
+        try {
+            return new ArrayList<>(category.getEntries());
+        } catch (NullPointerException ex) {
+            return new ArrayList<>();
+        }
     }
 
     public List<RestField> getAllRestFields(Entry entry) {
-        return new ArrayList<>(entry.getRestFields());
+        try {
+            return new ArrayList<>(entry.getRestFields());
+        } catch (NullPointerException ex) {
+            return new ArrayList<>();
+        }
     }
 
     public List<Operation> getAllOperations(RestField restField) {
-        return new ArrayList<>(restField.getOperations());
+        try {
+            return new ArrayList<>(restField.getOperations());
+        } catch (NullPointerException ex) {
+            return new ArrayList<>();
+        }
     }
 
     //Deletion of specific elements in deserialized json object
 
-    public void deleteOrEditCategory(String fileName, Config config, Category category, String action) {
+    public void deleteOrEditCategory(String fileName, Config config, Category category, boolean edit) {
+        try {
+            if (edit) {
+                int categoryIndex = config.getServer().getCategories().indexOf(category);
+                config.getServer().getCategories().set(categoryIndex, category);
+            } else {
+                config.getServer().getCategories().remove(category);
+            }
 
-        if(action.equals("edit")) {
+            writeConfigToFile(fileName, serializeJsonConfig(config));
+
+        } catch (NullPointerException ex) {
+            log.error("Error when trying to edit or delete category in config", ex);
+        }
+    }
+
+
+    public void deleteOrEditEntry(String fileName, Config config, Category category, Entry entry, boolean edit) {
+        try {
+            if (edit) {
+                int entryIndex = category.getEntries().indexOf(entry);
+                category.getEntries().set(entryIndex, entry);
+
+            } else {
+                category.getEntries().remove(entry);
+            }
+
             int categoryIndex = config.getServer().getCategories().indexOf(category);
             config.getServer().getCategories().set(categoryIndex, category);
-        } else {
-            config.getServer().getCategories().remove(category);
+
+            writeConfigToFile(fileName, serializeJsonConfig(config));
+
+        } catch (NullPointerException ex) {
+            log.error("Error when trying to edit or delete category in config", ex);
         }
-        writeConfigToFile(fileName, serializeJsonConfig(config));
+
     }
 
+    public void deleteOrEditRestField(String fileName, Config config, Category category, Entry entry, RestField restField, boolean edit) {
+        try {
+            if (edit) {
+                int restFieldIndex = entry.getRestFields().indexOf(restField);
+                entry.getRestFields().set(restFieldIndex, restField);
+            } else {
+                entry.getRestFields().remove(restField);
+            }
 
-    public void deleteOrEditEntry(String fileName, Config config, Category category, Entry entry, String action) {
-        if(action.equals("edit")) {
             int entryIndex = category.getEntries().indexOf(entry);
             category.getEntries().set(entryIndex, entry);
-        } else {
-            log.info("I GOT HEEEEEERE");
-            category.getEntries().remove(entry);
+
+            int categoryIndex = config.getServer().getCategories().indexOf(category);
+            config.getServer().getCategories().set(categoryIndex, category);
+
+            writeConfigToFile(fileName, serializeJsonConfig(config));
+
+        } catch (NullPointerException ex) {
+            log.error("Error when trying to edit or delete category in config", ex);
         }
-        int categoryIndex = config.getServer().getCategories().indexOf(category);
-        config.getServer().getCategories().set(categoryIndex, category);
-        log.info("I GOT HEEEEEERE tooo");
-        writeConfigToFile(fileName, serializeJsonConfig(config));
-
-    }
-
-    public void deleteOrEditRestField(String fileName, Config config, Category category, Entry entry, RestField restField, String action) {
-        if(action.equals("edit")) {
-            int restFieldIndex = entry.getRestFields().indexOf(restField);
-            entry.getRestFields().set(restFieldIndex, restField);
-        } else {
-            entry.getRestFields().remove(restField);
-        }
-
-        int entryIndex = category.getEntries().indexOf(entry);
-        category.getEntries().set(entryIndex, entry);
-
-        int categoryIndex = config.getServer().getCategories().indexOf(category);
-        config.getServer().getCategories().set(categoryIndex, category);
-
-        writeConfigToFile(fileName, serializeJsonConfig(config));
     }
 
 
     public void deleteOrEditOperation(String fileName, Config config, Category category, Entry entry, RestField
-            restField, Operation operation, String action) {
-        if(action.equals("edit")) {
-            int operationIndex= restField.getOperations().indexOf(operation);
-            restField.getOperations().set(operationIndex, operation);
-        }else {
-            restField.getOperations().remove(operation);
+            restField, Operation operation, boolean edit) {
+        try {
+            if (edit) {
+                int operationIndex = restField.getOperations().indexOf(operation);
+                restField.getOperations().set(operationIndex, operation);
+            } else {
+                restField.getOperations().remove(operation);
+            }
+            int restFieldIndex = entry.getRestFields().indexOf(restField);
+            entry.getRestFields().set(restFieldIndex, restField);
+
+            int entryIndex = category.getEntries().indexOf(entry);
+            category.getEntries().set(entryIndex, entry);
+
+            int categoryIndex = config.getServer().getCategories().indexOf(category);
+            config.getServer().getCategories().set(categoryIndex, category);
+
+            writeConfigToFile(fileName, serializeJsonConfig(config));
+
+        } catch (NullPointerException ex) {
+            log.error("Error when trying to edit or delete category in config", ex);
         }
-        int restFieldIndex = entry.getRestFields().indexOf(restField);
-        entry.getRestFields().set(restFieldIndex, restField);
-
-        int entryIndex = category.getEntries().indexOf(entry);
-        category.getEntries().set(entryIndex, entry);
-
-        int categoryIndex = config.getServer().getCategories().indexOf(category);
-        config.getServer().getCategories().set(categoryIndex, category);
-
-        writeConfigToFile(fileName, serializeJsonConfig(config));
-
     }
 
     public void deleteAddress(String fileName, Config config, Address address) {
+        try {
+            config.getServer().getAddresses().remove(address);
+            writeConfigToFile(fileName, serializeJsonConfig(config));
 
-        config.getServer().getAddresses().remove(address);
-        writeConfigToFile(fileName, serializeJsonConfig(config));
+        } catch (NullPointerException ex) {
+            log.error("Error when trying to edit or delete category in config", ex);
+        }
 
     }
 

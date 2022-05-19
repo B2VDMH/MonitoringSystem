@@ -70,7 +70,7 @@ public class OperationDialog extends Dialog {
                     saveState=true;
                     this.close();
                 }
-            } catch (Exception ex){
+            } catch (NullPointerException ex){
                 log.error("Operation Dialog produced error, when trying to save", ex);
             }
 
