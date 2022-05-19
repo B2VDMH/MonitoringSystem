@@ -12,39 +12,40 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import hu.gdf.thesis.AppHeader;
 import hu.gdf.thesis.backend.*;
 import hu.gdf.thesis.model.Response;
 import hu.gdf.thesis.model.config.*;
-import net.minidev.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Consumer;
 
+@PageTitle("Monitoring Page")
 @Route("monitoring")
+@Slf4j
 public class MonitoringPage extends VerticalLayout {
     static Config config = new Config();
-    static String fileName = "";
+    static String fileName;
     private boolean checkTimerState;
     private List<Response> responseList = new ArrayList<>();
     private GridListDataView<Response> responseDataView;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringPage.class);
-
     public MonitoringPage(@Autowired FileHandler fileHandler, RestClient restClient) {
 
-
+        //Select component for file selection
         Select fileSelect = new Select();
         fileSelect.setItems(fileHandler.listFilesInDirectory());
         fileSelect.setLabel("Configuration File Selector");
         fileSelect.setHelperText("Select the server you wish to monitor.");
 
+        //Add Page selection menu bar and file selector component to page
         this.add(new AppHeader(), fileSelect);
+
         VerticalLayout gridLayout = new VerticalLayout();
         HorizontalLayout timerLayout = new HorizontalLayout();
 
@@ -63,6 +64,8 @@ public class MonitoringPage extends VerticalLayout {
         //Grid Component's Filter Headers based on createFilterHeader static component
         monitoringGrid.getHeaderRows().clear();
         HeaderRow headerRow = monitoringGrid.appendHeaderRow();
+
+        //Search bars per grid row
         Filter filter = new Filter(responseDataView);
         headerRow.getCell(serverHostColumn).setComponent(
                 createFilterHeader(filter::setServerHost));
@@ -81,44 +84,49 @@ public class MonitoringPage extends VerticalLayout {
         fileSelect.addValueChangeListener(e -> {
             try {
                 timerLayout.removeAll();
+
                 fileName = String.valueOf(fileSelect.getValue());
                 config = fileHandler.deserializeJsonConfig(fileHandler.readFromFile(fileName), Config.class);
+                responseDataView = monitoringGrid.setItems();
 
-                ResponseHandler responseHandler = new ResponseHandler();
-                responseHandler.buildResponseList(config, restClient,responseList);
-                responseDataView = monitoringGrid.setItems(responseList);
+                if (config != null) {
+                    ResponseHandler responseHandler = new ResponseHandler();
+                    responseHandler.buildResponseList(config, restClient, responseList);
+                    responseDataView = monitoringGrid.setItems(responseList);
 
-                SimpleTimer timer = new SimpleTimer(new BigDecimal(config.getServer().getRefreshTimer()));
-                Button timerButton = new Button("Start/Pause");
+                    SimpleTimer timer = new SimpleTimer(new BigDecimal(config.getServer().getRefreshTimer()));
+                    Button timerButton = new Button("Start/Pause");
 
-                timerButton.addClickListener(buttonClickEvent -> {
-                    if (checkTimerState) {
-                        timer.pause();
-                        checkTimerState = false;
-                    } else {
-                        timer.start();
-                        checkTimerState = true;
-                    }
-                });
-                timerLayout.add(timer,timerButton);
+                    //Periodically refresh grid
+                    timerButton.addClickListener(buttonClickEvent -> {
+                        if (checkTimerState) {
+                            timer.pause();
+                            checkTimerState = false;
+                        } else {
+                            timer.start();
+                            checkTimerState = true;
+                        }
+                    });
+                    timerLayout.add(timer, timerButton);
 
-                timer.addTimerEndEvent(timerEndedEvent -> {
-                    try {
-                        responseHandler.buildResponseList(config, restClient,responseList);
+                    timer.addTimerEndEvent(timerEndedEvent -> {
+
+                        fileName = String.valueOf(fileSelect.getValue());
+                        config = fileHandler.deserializeJsonConfig(fileHandler.readFromFile(fileName), Config.class);
+
+                        responseHandler.buildResponseList(config, restClient, responseList);
                         responseDataView = monitoringGrid.setItems(responseList);
 
                         timer.reset();
                         timer.start();
-                    } catch (Exception ex ) {
-                        LOGGER.error("Exception occured at timer start: " + ex.getLocalizedMessage());
-                    }
 
-                });
-
-                timer.start();
-
-            } catch (Exception ex) {
-                LOGGER.error("File Selection error", ex);
+                    });
+                    timer.start();
+                } else {
+                    log.error("");
+                }
+            } catch (NullPointerException ex) {
+                log.error("Exception occurred when trying to fill monitoring grid with data: " + ex.getMessage());
             }
         });
 
@@ -141,8 +149,9 @@ public class MonitoringPage extends VerticalLayout {
         return filterLayout;
     }
 
-    //Inner static class containing setters for filtering and methods to check if data matches the searched data
+    //Inner static class containing custom setters for filtering and methods to check if data in grid data view matches the searched data
     public static class Filter {
+
         private final GridListDataView<Response> responseDataView;
 
         private String serverHost;

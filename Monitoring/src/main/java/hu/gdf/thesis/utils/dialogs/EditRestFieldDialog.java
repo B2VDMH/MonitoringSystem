@@ -13,21 +13,20 @@ import hu.gdf.thesis.model.config.RestField;
 import hu.gdf.thesis.utils.notifications.CustomNotification;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
-public class RestFieldDialog extends Dialog {
-
+public class EditRestFieldDialog extends Dialog {
     @Getter
     private RestField restField = new RestField();
     @Getter
-    private boolean saveState = false;
+    private boolean deleteState = false;
 
-    public RestFieldDialog(String fileName, Config config, Category category, Entry entry, @Autowired FileHandler fileHandler) {
+    public EditRestFieldDialog(String fileName, Config config, Category category, Entry entry, RestField restField, @Autowired FileHandler fileHandler) {
 
         TextField restFieldPathTF = new TextField("REST Field Path");
         restFieldPathTF.setHelperText("Please add the full path using JsonPath syntax (e.g. $.fieldArray[0].field)");
+        restFieldPathTF.setValue(restField.getFieldPath());
         restFieldPathTF.setWidth("350px");
 
         Button cancelButton = new Button("Cancel" , e -> this.close());
@@ -40,27 +39,38 @@ public class RestFieldDialog extends Dialog {
                     errorNotification.open();
                 } else {
                     restField.setFieldPath(restFieldPathTF.getValue().trim());
-                    entry.getRestFields().add(restField);
-
-                    int entryIndex = category.getEntries().indexOf(entry);
-                    category.getEntries().set(entryIndex,entry);
-
-                    int categoryIndex = config.getServer().getCategories().indexOf(category);
-                    config.getServer().getCategories().set(categoryIndex, category);
-
-                    fileHandler.writeConfigToFile(fileName, fileHandler.serializeJsonConfig(config));
-                    saveState=true;
+                    this.restField = restField;
+                    fileHandler.deleteOrEditRestField(fileName, config, category, entry, this.restField, "edit");
+                    deleteState =true;
                     this.close();
                 }
-            }catch (Exception ex) {
-                log.error("Rest Field Dialog produced error, when trying to save", ex);
-            }
 
+            }catch (Exception ex) {
+                log.error("Edit Rest Field Dialog produced error, when trying to save", ex);
+            }
+        });
+
+        Button deleteButton = new Button("Delete Rest Field");
+        deleteButton.addClickListener(buttonClickEvent -> {
+            try {
+
+                this.restField = restField;
+                ConfirmDialog confirmDialog = new ConfirmDialog(restField.getFieldPath());
+                confirmDialog.open();
+                confirmDialog.addDetachListener(detachEvent -> {
+                    if(confirmDialog.isDeleteState()) {
+                        deleteState = true;
+                        this.close();
+                    }
+                });
+
+            } catch (Exception ex) {
+                log.error("Edit Operation Dialog produced error, when trying to delete", ex);
+            }
         });
         this.setCloseOnOutsideClick(false);
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, saveButton);
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, saveButton, deleteButton);
         VerticalLayout dialogContentLayout = new VerticalLayout(restFieldPathTF, buttonLayout);
         this.add(dialogContentLayout);
     }
-
 }

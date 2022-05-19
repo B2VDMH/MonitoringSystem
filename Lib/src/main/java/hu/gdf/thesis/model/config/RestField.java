@@ -3,11 +3,15 @@ package hu.gdf.thesis.model.config;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-@Generated("jsonschema2pojo")
+@Getter
+@Setter
+@EqualsAndHashCode
 public class RestField {
 
     @SerializedName("fieldPath")
@@ -15,23 +19,7 @@ public class RestField {
     private String fieldPath;
     @SerializedName("operations")
     @Expose
-    private List<Operation> operation = new ArrayList<>();
-
-    public String getFieldPath() {
-        return fieldPath;
-    }
-
-    public void setFieldPath(String fieldPath) {
-        this.fieldPath = fieldPath;
-    }
-
-    public List<Operation> getOperation() {
-        return operation;
-    }
-
-    public void setOperation(List<Operation> operation) {
-        this.operation = operation;
-    }
+    private List<Operation> operations = new ArrayList<>();
 
     @Override
     public String toString() {

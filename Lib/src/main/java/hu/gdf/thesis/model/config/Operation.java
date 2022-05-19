@@ -1,14 +1,15 @@
 
 package hu.gdf.thesis.model.config;
 
-import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Generated("jsonschema2pojo")
+@Getter
+@Setter
+@EqualsAndHashCode
 public class Operation {
 
     @SerializedName("operator")
@@ -27,49 +28,6 @@ public class Operation {
     @Expose
     private boolean alert;
 
-    @SerializedName("addresses")
-    @Expose
-    private List<Address> addresses = new ArrayList<>();
-
-    public String getOperator() {
-        return operator;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public boolean isAlert() {
-        return alert;
-    }
-
-    public void setAlert(boolean alert) {
-        this.alert = alert;
-    }
-
-    public List<Address> getAddresses() {
-        return addresses;
-    }
-
-    public void setAddresses(List<Address> addresses) {
-        this.addresses = addresses;
-    }
 
     @Override
     public String toString() {

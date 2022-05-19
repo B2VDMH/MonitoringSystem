@@ -3,11 +3,15 @@ package hu.gdf.thesis.model.config;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-@Generated("jsonschema2pojo")
+@Getter
+@Setter
+@EqualsAndHashCode
 public class Server {
 
     @SerializedName("host")
@@ -19,42 +23,12 @@ public class Server {
     @SerializedName("refreshTimer")
     @Expose
     private Integer refreshTimer;
+    @SerializedName("addresses")
+    @Expose
+    private List<Address> addresses = new ArrayList<>();
     @SerializedName("categories")
     @Expose
     private List<Category> categories = new ArrayList<>();
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public Integer getPort() {
-        return port;
-    }
-
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    public Integer getRefreshTimer() {
-        return refreshTimer;
-    }
-
-    public void setRefreshTimer(Integer refreshTimer) {
-        this.refreshTimer = refreshTimer;
-    }
-
-    public List<Category> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
-    }
-
 
 
 }

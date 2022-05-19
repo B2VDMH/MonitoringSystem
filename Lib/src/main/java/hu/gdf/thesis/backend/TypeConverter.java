@@ -1,25 +1,28 @@
 package hu.gdf.thesis.backend;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TypeConverter {
-	private static final Logger LOGGER = LoggerFactory.getLogger(TypeConverter.class);
+
+	//If provided String value can be converted to int, return true
 	public static boolean tryParseInt(String value) {
 		try {
 			Integer.parseInt(value);
 			return true;
 		}catch (NumberFormatException ex) {
-			LOGGER.error("Could not convert from STRING to INTEGER, provided value: " + value, ex);
+			log.error("Could not convert from STRING to INTEGER, provided value: " + value, ex);
 			return false;
 		}
 	}
+
+	//If provided String value can be converted to boolean, return true
 	public static boolean tryParseBool(String value) {
 		try {
 			Boolean.parseBoolean(value);
 			return true;
 		}catch (NumberFormatException ex) {
-			LOGGER.error("Could not convert from STRING to BOOLEAN, provided value: " + value, ex);
+			log.error("Could not convert from STRING to BOOLEAN, provided value: " + value, ex);
 			return false;
 		}
 	}

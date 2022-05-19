@@ -1,23 +1,20 @@
 
 package hu.gdf.thesis.model.config;
 
-import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-@Generated("jsonschema2pojo")
+@Getter
+@Setter
+@EqualsAndHashCode
 public class Config {
 
     @SerializedName("server")
     @Expose
     private Server server;
 
-    public Server getServer() {
-        return server;
-    }
-
-    public void setServer(Server server) {
-        this.server = server;
-    }
 
 }

@@ -10,8 +10,9 @@ public class ActionSelect extends Select {
         List<String> actionList = new ArrayList<>();
 
         actionList.add("colorGreen");
-        actionList.add("colorRed");
         actionList.add("colorYellow");
+        actionList.add("colorRed");
+        actionList.add("colorPurple");
 
         this.setItems(actionList);
         this.setLabel("Actions");
