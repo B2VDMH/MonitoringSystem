@@ -46,7 +46,7 @@ public class ConfigCreatorPage extends VerticalLayout {
         CustomHorizontalLayout operationLayout = new CustomHorizontalLayout();
         CustomHorizontalLayout addressLayout = new CustomHorizontalLayout();
 
-        //Select component for file selection
+        //Select component for file sselection
         Select fileSelect = new Select();
         fileSelect.setItems(fileHandler.listFilesInDirectory());
         fileSelect.setLabel("Configuration File Selector");
@@ -60,7 +60,7 @@ public class ConfigCreatorPage extends VerticalLayout {
 
         //Buttons and their click listener functions
 
-        Button createFileButton = new Button("Create new config");
+        Button createFileButton = new Button("Create Config");
         createFileButton.addClickListener(buttonClickEvent -> {
 
             ConfigCreatorDialog configCreatorDialog = new ConfigCreatorDialog(fileHandler);
@@ -72,9 +72,9 @@ public class ConfigCreatorPage extends VerticalLayout {
             });
         });
 
-        Button editFileButton = new Button("Edit server data");
+        Button editFileButton = new Button("Edit Config");
         editFileButton.addClickListener(buttonClickEvent -> {
-
+            try {
             EditConfigDialog editConfigDialog = new EditConfigDialog(String.valueOf(fileSelect.getValue()), fileHandler);
             editConfigDialog.open();
             editConfigDialog.addDetachListener(detachEvent -> {
@@ -82,6 +82,9 @@ public class ConfigCreatorPage extends VerticalLayout {
                     UI.getCurrent().getPage().reload();
                 }
             });
+        } catch (NullPointerException ex) {
+            log.warn("Empty selection");
+        }
         });
 
         Button addCategoryButton = new Button("Add Category");
@@ -98,7 +101,7 @@ public class ConfigCreatorPage extends VerticalLayout {
 
         Button editCategoryButton = new Button("Edit Category");
         editCategoryButton.addClickListener(buttonClickEvent -> {
-
+            try {
             EditCategoryDialog editCategoryDialog = new EditCategoryDialog(fileName, config, category, fileHandler);
             editCategoryDialog.open();
             editCategoryDialog.addDetachListener(detachEvent -> {
@@ -108,6 +111,9 @@ public class ConfigCreatorPage extends VerticalLayout {
                     categoryDataView.removeItem(category);
                 }
             });
+        } catch (NullPointerException ex) {
+            log.warn("Empty selection");
+        }
         });
 
         Button addEntryButton = new Button("Add Entry");
@@ -124,7 +130,7 @@ public class ConfigCreatorPage extends VerticalLayout {
 
         Button editEntryButton = new Button("Edit Entry");
         editEntryButton.addClickListener(buttonClickEvent -> {
-
+            try {
             EditEntryDialog editEntryDialog = new EditEntryDialog(fileName, config, category, entry, fileHandler);
             editEntryDialog.open();
             editEntryDialog.addDetachListener(detachEvent -> {
@@ -134,7 +140,12 @@ public class ConfigCreatorPage extends VerticalLayout {
                     entryDataView.removeItem(entry);
                 }
             });
+
+            } catch (NullPointerException ex) {
+                log.warn("Empty selection");
+            }
         });
+
 
         Button addRestFieldButton = new Button("Add REST Field Path");
         addRestFieldButton.addClickListener(buttonClickEvent -> {
@@ -150,7 +161,7 @@ public class ConfigCreatorPage extends VerticalLayout {
 
         Button editRestFieldButton = new Button("Edit REST Field Path");
         editRestFieldButton.addClickListener(buttonClickEvent -> {
-
+            try {
             EditRestFieldDialog editRestFieldDialog = new EditRestFieldDialog(fileName, config, category, entry, restField, fileHandler);
             editRestFieldDialog.open();
             editRestFieldDialog.addDetachListener(detachEvent -> {
@@ -160,11 +171,13 @@ public class ConfigCreatorPage extends VerticalLayout {
                     restFieldDataView.removeItem(restField);
                 }
             });
+            } catch (NullPointerException ex) {
+                log.warn("Empty selection");
+            }
         });
 
         Button addOperationButton = new Button("Add Operation");
         addOperationButton.addClickListener(buttonClickEvent -> {
-
             OperationDialog operationDialog = new OperationDialog(fileName, config, category, entry, restField, fileHandler);
             operationDialog.open();
             operationDialog.addDetachListener(detachEvent -> {
@@ -175,16 +188,19 @@ public class ConfigCreatorPage extends VerticalLayout {
         });
         Button editOperationButton = new Button("Edit Operation");
         editOperationButton.addClickListener(buttonClickEvent -> {
-
-            EditOperationDialog editOperationDialog = new EditOperationDialog(fileName, config, category, entry, restField, operation, fileHandler);
-            editOperationDialog.open();
-            editOperationDialog.addDetachListener(detachEvent -> {
-                if (!editOperationDialog.isDeleteState()) {
-                    operationDataView.refreshAll();
-                } else {
-                    operationDataView.removeItem(operation);
-                }
-            });
+            try {
+                EditOperationDialog editOperationDialog = new EditOperationDialog(fileName, config, category, entry, restField, operation, fileHandler);
+                editOperationDialog.open();
+                editOperationDialog.addDetachListener(detachEvent -> {
+                    if (!editOperationDialog.isDeleteState()) {
+                        operationDataView.refreshAll();
+                    } else {
+                        operationDataView.removeItem(operation);
+                    }
+                });
+            } catch (NullPointerException ex) {
+                log.warn("Empty selection");
+            }
         });
 
         fileSelect.addValueChangeListener(f -> {

@@ -45,7 +45,6 @@ public class MonitoringPage extends VerticalLayout {
 
         //Add Page selection menu bar and file selector component to page
         this.add(new AppHeader(), fileSelect);
-
         VerticalLayout gridLayout = new VerticalLayout();
         HorizontalLayout timerLayout = new HorizontalLayout();
 

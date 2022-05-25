@@ -23,7 +23,6 @@ public class EditCategoryDialog extends Dialog {
     private boolean deleteState = false;
 
     public EditCategoryDialog(String fileName, Config config, Category category, @Autowired FileHandler fileHandler) {
-
         this.getElement().setAttribute("aria-label", "Add new Category");
 
         TextField categoryTypeField = new TextField("Category Type");

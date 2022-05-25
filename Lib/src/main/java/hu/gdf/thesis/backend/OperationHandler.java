@@ -44,7 +44,7 @@ public class OperationHandler {
                 break;
 
             //Check if field's value is not equal to operation value
-            case "doesNotEquals":
+            case "doesNotEqual":
                 if (!fieldValue.equalsIgnoreCase(operation.getValue())) {
                     executeAction(operation.getAction());
                     if (operation.isAlert()) {
@@ -72,7 +72,7 @@ public class OperationHandler {
                 break;
             //Check if field's numeric value is greater than operation value.
             case "greater":
-                if (operation.getValue() != null || !tryParseInt(operation.getValue())) {
+                if (tryParseInt(operation.getValue())) {
                     if (Integer.parseInt(fieldValue) > Integer.parseInt(operation.getValue())) {
                         executeAction(operation.getAction());
                         if (operation.isAlert()) {
@@ -83,7 +83,7 @@ public class OperationHandler {
                 break;
             //Check if field's numeric value is lesser than operation value.
             case "lesser":
-                if (operation.getValue() != null || !tryParseInt(operation.getValue())) {
+                if (tryParseInt(operation.getValue())) {
                     if (Integer.parseInt(fieldValue) < Integer.parseInt(operation.getValue())) {
                         executeAction(operation.getAction());
                         if (operation.isAlert()) {

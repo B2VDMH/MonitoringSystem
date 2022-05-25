@@ -30,11 +30,11 @@ public class ConfigCreatorDialog extends Dialog {
     public ConfigCreatorDialog(@Autowired FileHandler fileHandler) {
 
         TextField fileNameTF = new TextField("File Name");
-        fileNameTF.setHelperText("Enter the name of the configuration file you wish to create.");
+        fileNameTF.setHelperText("Enter the name of the configuration file you wish to create, without file extension.");
         fileNameTF.setWidth("350px");
 
         TextField serverHostTF = new TextField("Server Host");
-        serverHostTF.setHelperText("Enter the name of the server host you wish to monitor.");
+        serverHostTF.setHelperText("Enter the address of the server host you wish to monitor.");
         serverHostTF.setWidth("350px");
 
         IntegerField portField = new IntegerField("Port Number");

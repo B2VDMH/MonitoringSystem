@@ -9,7 +9,7 @@ import lombok.*;
 @EqualsAndHashCode
 public class Address {
 
-    @SerializedName("addresses")
+    @SerializedName("address")
     @Expose
     private String address;
 

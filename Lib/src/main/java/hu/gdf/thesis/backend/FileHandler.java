@@ -60,8 +60,9 @@ public class FileHandler {
     //If the file exists, parse the content as String
     public String readFromFile(String fileName) {
         try {
-            if (Files.exists(Path.of(pathConfiguration.getPath() + File.separator + fileName)) && fileName.endsWith(".json")) {
-                return new String(Files.readAllBytes(Paths.get(pathConfiguration.getPath() + File.separator + fileName)));
+            String filePath = pathConfiguration.getPath() + File.separator + fileName;
+            if (Files.exists(Path.of(filePath)) && fileName.endsWith(".json")) {
+                return new String(Files.readAllBytes(Paths.get(filePath)));
             } else {
                 log.warn("File does not exist!");
             }
@@ -76,8 +77,8 @@ public class FileHandler {
         try {
             String filePath = pathConfiguration.getPath() + File.separator + fileName;
             if (Files.exists(Path.of(filePath))) {
-                Files.delete(Paths.get(pathConfiguration.getPath() + File.separator + fileName));
-                log.info("Deleted Config: " + pathConfiguration.getPath() + File.separator + fileName);
+                Files.delete(Paths.get(filePath));
+                log.info("Deleted Config: " + filePath);
             } else {
                 log.warn("Warning, file was not found in directory: " + pathConfiguration.getPath());
             }
@@ -92,7 +93,7 @@ public class FileHandler {
             String filePath = pathConfiguration.getPath() + File.separator + fileName;
             if (Files.exists(Path.of(filePath))) {
                 Files.write(Paths.get(filePath), fileContent.getBytes());
-                log.info("Saved Config: " + pathConfiguration.getPath() + File.separator + fileName);
+                log.info("Saved Config: " + filePath);
             } else {
                 log.warn("Warning, file was not found in directory: " + pathConfiguration.getPath());
             }

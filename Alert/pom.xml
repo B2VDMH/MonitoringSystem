@@ -8,8 +8,6 @@
         <groupId>hu.gdf.thesis</groupId>
         <version>v20220309-00</version>
     </parent>
-
-    <groupId>hu.gdf.thesis</groupId>
     <artifactId>Alert</artifactId>
     <name>Alert</name>
     <version>20220309-00</version>
@@ -38,9 +36,5 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-        <maven.compiler.source>14</maven.compiler.source>
-        <maven.compiler.target>14</maven.compiler.target>
-    </properties>
 
 </project>
