@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 public class SmtpMailSender {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(SmtpMailSender.class);
+
     @Autowired
     JavaMailSender mailSender;
 
@@ -32,7 +32,7 @@ public class SmtpMailSender {
                 log.info("Sending alert e-mail to address: " + address.getAddress());
             }
         } catch (MailException ex) {
-            LOGGER.error("Error when attempting to send e-mail to address.");
+            log.error("Error when attempting to send e-mail to address.");
         }
 
     }

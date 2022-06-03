@@ -1,4 +1,4 @@
-package hu.gdf.thesis.model;
+package hu.gdf.thesis.backend;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -3,7 +3,6 @@ package hu.gdf.thesis.backend;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import hu.gdf.thesis.model.PathConfiguration;
 import hu.gdf.thesis.model.config.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +35,7 @@ public class FileHandler {
                 .map(File::getName)
                 .collect(Collectors.toSet());
     }
+
 
     //Check if specific file exists in directory
     public boolean fileExists(String fileName) {

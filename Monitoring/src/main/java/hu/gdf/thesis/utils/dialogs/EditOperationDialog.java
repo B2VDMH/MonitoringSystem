@@ -49,7 +49,7 @@ public class EditOperationDialog extends Dialog {
         Button saveButton = new Button("Save to Config");
         saveButton.addClickListener( buttonClickEvent -> {
             try {
-                if(operatorSelect.isEmpty() || valueTF.getValue().isEmpty() || actionSelect.isEmpty() || alertSelect.isEmpty()) {
+                if(operatorSelect.isEmpty() || actionSelect.isEmpty() || alertSelect.isEmpty()) {
 
                     CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
                     errorNotification.open();
