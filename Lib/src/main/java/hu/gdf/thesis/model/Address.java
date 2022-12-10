@@ -1,16 +1,13 @@
-package hu.gdf.thesis.model.config;
+package hu.gdf.thesis.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.*;
 
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 public class Address {
 
     @SerializedName("address")
-    @Expose
     private String address;
 
     @Override

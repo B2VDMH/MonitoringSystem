@@ -1,31 +1,21 @@
 
-package hu.gdf.thesis.model.config;
+package hu.gdf.thesis.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@EqualsAndHashCode
+
+@Data
 public class Operation {
 
     @SerializedName("operator")
-    @Expose
     private String operator;
-
     @SerializedName("value")
-    @Expose
     private String value;
-
     @SerializedName("action")
-    @Expose
     private String action;
-
     @SerializedName("alert")
-    @Expose
     private boolean alert;
 
 

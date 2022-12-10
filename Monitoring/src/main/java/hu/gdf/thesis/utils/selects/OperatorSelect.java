@@ -24,5 +24,6 @@ public class OperatorSelect extends Select {
         this.setItems(operatorList);
         this.setLabel("Operators");
         this.setWidth("300px");
+        this.setHelperText("Select a condition operator.");
     }
 }

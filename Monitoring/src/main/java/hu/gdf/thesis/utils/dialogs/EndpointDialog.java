@@ -7,22 +7,26 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import hu.gdf.thesis.backend.FileHandler;
-import hu.gdf.thesis.model.config.Category;
-import hu.gdf.thesis.model.config.Config;
-import hu.gdf.thesis.model.config.Entry;
+import hu.gdf.thesis.model.Category;
+import hu.gdf.thesis.model.Config;
+import hu.gdf.thesis.model.Endpoint;
 import hu.gdf.thesis.utils.notifications.CustomNotification;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
-public class EntryDialog extends Dialog {
+public class EndpointDialog extends Dialog {
+
+    private static CustomNotification notification = new CustomNotification();
+
     @Getter
-    private Entry entry = new Entry();
+    private Endpoint entry = new Endpoint();
     @Getter
+    @Setter
     private boolean saveState = false;
 
-    public EntryDialog(String fileName, Config config, Category category, @Autowired FileHandler fileHandler) {
+    public EndpointDialog(String fileName, Config config, Category category, FileHandler fileHandler) {
 
         TextField restURLFieldTF = new TextField("REST URL");
         restURLFieldTF.setHelperText("Please add the REST URL starting with a \"/\" (forward slash).");
@@ -37,17 +41,15 @@ public class EntryDialog extends Dialog {
         Button saveButton = new Button("Save to Config");
         saveButton.addClickListener(buttonClickEvent -> {
             try {
-                if (restURLFieldTF.getValue().isEmpty() || alertSelect.isEmpty()) {
-                    CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
-                    errorNotification.open();
+                if (restURLFieldTF.getValue().isEmpty() || !restURLFieldTF.getValue().startsWith("/") || alertSelect.isEmpty()) {
+                    notification.setText("Save failed - Invalid or empty Input.");
+                    notification.open();
                 } else {
                     entry.setRestURL(restURLFieldTF.getValue().trim());
                     entry.setAlert((Boolean) alertSelect.getValue());
-                    category.getEntries().add(entry);
-                    int categoryIndex = config.getServer().getCategories().indexOf(category);
-                    config.getServer().getCategories().set(categoryIndex, category);
-                    fileHandler.writeConfigToFile(fileName, fileHandler.serializeJsonConfig(config));
-                    saveState = true;
+
+                    fileHandler.addEndpoint(fileName, config, category, entry);
+                    setSaveState(true);
                     this.close();
                 }
             } catch (NullPointerException ex) {

@@ -6,23 +6,25 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import hu.gdf.thesis.backend.FileHandler;
-import hu.gdf.thesis.model.config.Category;
-import hu.gdf.thesis.model.config.Config;
+import hu.gdf.thesis.model.Category;
+import hu.gdf.thesis.model.Config;
 import hu.gdf.thesis.utils.notifications.CustomNotification;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
 public class CategoryDialog extends Dialog {
+
+    private static CustomNotification notification = new CustomNotification();
+
     @Getter
     private Category category = new Category();
     @Getter
+    @Setter
     private boolean saveState = false;
 
-    public CategoryDialog(String fileName, Config config, @Autowired FileHandler fileHandler) {
+    public CategoryDialog(String fileName, Config config, FileHandler fileHandler) {
 
         this.getElement().setAttribute("aria-label", "Add new Category");
 
@@ -36,13 +38,12 @@ public class CategoryDialog extends Dialog {
         saveButton.addClickListener( buttonClickEvent -> {
             try {
                 if (categoryTypeField.getValue().isEmpty()) {
-                    CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
-                    errorNotification.open();
+                    notification.setText("Save failed - Invalid or empty Input.");
+                    notification.open();
                 }
                     category.setType(categoryTypeField.getValue());
-                    config.getServer().getCategories().add(category);
-                    fileHandler.writeConfigToFile(fileName, fileHandler.serializeJsonConfig(config));
-                    saveState = true;
+                    fileHandler.addCategory(fileName, config, category);
+                    setSaveState(true);
                     this.close();
 
             } catch (NullPointerException ex) {

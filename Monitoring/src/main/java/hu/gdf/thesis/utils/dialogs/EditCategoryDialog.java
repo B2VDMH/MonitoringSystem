@@ -7,22 +7,23 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import hu.gdf.thesis.backend.FileHandler;
-import hu.gdf.thesis.model.config.Category;
-import hu.gdf.thesis.model.config.Config;
+import hu.gdf.thesis.model.Category;
+import hu.gdf.thesis.model.Config;
 import hu.gdf.thesis.utils.notifications.CustomNotification;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
 public class EditCategoryDialog extends Dialog {
 
+    private static CustomNotification notification = new CustomNotification();
+
     @Getter
-    private Category category = new Category();
-    @Getter
+    @Setter
     private boolean deleteState = false;
 
-    public EditCategoryDialog(String fileName, Config config, Category category, @Autowired FileHandler fileHandler) {
+    public EditCategoryDialog(String fileName, Config config, Category category, FileHandler fileHandler) {
         this.getElement().setAttribute("aria-label", "Add new Category");
 
         TextField categoryTypeField = new TextField("Category Type");
@@ -36,15 +37,12 @@ public class EditCategoryDialog extends Dialog {
         saveButton.addClickListener( buttonClickEvent -> {
             try {
                 if (categoryTypeField.getValue().isEmpty()) {
-
-                    CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
-                    errorNotification.open();
-
+                    notification.setText("Save failed - Invalid or empty Input.");
+                    notification.open();
                 }
                 category.setType(categoryTypeField.getValue());
-                this.category = category;
 
-                fileHandler.deleteOrEditCategory(fileName, config, this.category, true);
+                fileHandler.modifyCategory(fileName, config, category, true);
                 this.close();
 
             } catch (NullPointerException ex) {
@@ -55,12 +53,12 @@ public class EditCategoryDialog extends Dialog {
         Button deleteButton = new Button("Delete Category");
         deleteButton.addClickListener(buttonClickEvent -> {
             try {
-                ConfirmDialog confirmDialog = new ConfirmDialog(category.getType());
+                ConfirmDeleteDialog confirmDialog = new ConfirmDeleteDialog(category.getType());
                 confirmDialog.open();
                 confirmDialog.addDetachListener(detachEvent -> {
                     if(confirmDialog.isDeleteState()) {
-                        deleteState = true;
-                        fileHandler.deleteOrEditCategory(fileName, config, category, false);
+                        setDeleteState(true);
+                        fileHandler.modifyCategory(fileName, config, category, false);
                         this.close();
                     }
                 });

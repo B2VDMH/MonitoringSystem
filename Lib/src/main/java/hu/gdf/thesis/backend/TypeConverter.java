@@ -10,7 +10,7 @@ public class TypeConverter {
 		try {
 			Integer.parseInt(value);
 			return true;
-		}catch (NumberFormatException ex) {
+		} catch (NumberFormatException ex) {
 			log.error("Could not convert from STRING to INTEGER, provided value: " + value, ex);
 			return false;
 		}
@@ -21,7 +21,7 @@ public class TypeConverter {
 		try {
 			Boolean.parseBoolean(value);
 			return true;
-		}catch (NumberFormatException ex) {
+		} catch (Exception ex) {
 			log.error("Could not convert from STRING to BOOLEAN, provided value: " + value, ex);
 			return false;
 		}

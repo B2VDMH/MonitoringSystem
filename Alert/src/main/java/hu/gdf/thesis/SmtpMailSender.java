@@ -1,9 +1,7 @@
-package hu.gdf.thesis.alert;
+package hu.gdf.thesis;
 
-import hu.gdf.thesis.model.config.Address;
+import hu.gdf.thesis.model.Address;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -16,7 +14,6 @@ import java.util.List;
 @Slf4j
 public class SmtpMailSender {
 
-
     @Autowired
     JavaMailSender mailSender;
 
@@ -24,7 +21,7 @@ public class SmtpMailSender {
         try {
             for (Address address : addressList ) {
                 SimpleMailMessage message = new SimpleMailMessage();
-                message.setFrom("hu.gdf.thesis.monitoring.alerts@gmail.com");
+                message.setFrom("${spring.mail.username}");
                 message.setTo(address.getAddress());
                 message.setSubject("Alert");
                 message.setText(content.toString());

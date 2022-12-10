@@ -1,28 +1,23 @@
 
-package hu.gdf.thesis.model.config;
+package hu.gdf.thesis.model;
 
 import java.util.ArrayList;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@EqualsAndHashCode
-public class Entry {
+@Data
+public class Endpoint {
 
     @SerializedName("restURL")
-    @Expose
     private String restURL;
+
     @SerializedName("alert")
-    @Expose
     private boolean alert;
-    @SerializedName("restFields")
-    @Expose
-    private List<RestField> restFields = new ArrayList<>();
+
+    @SerializedName("fields")
+    private List<Field> fields = new ArrayList<>();
 
     @Override
     public String toString() {

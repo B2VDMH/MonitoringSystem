@@ -1,10 +1,10 @@
-package hu.gdf.thesis.alert;
+package hu.gdf.thesis;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
-@Setter
-@EqualsAndHashCode
+@Data
 public class AlertEmailContent {
 
     private String serverHost;
@@ -23,8 +23,8 @@ public class AlertEmailContent {
                 "Category: " + category + "\n" +
                 "REST URL: " + restURL + "\n" +
                 "Field Path: " + fieldPath + "\n" +
-                "Expected: " + value + "\n" +
+                "Field Value: " + fieldValue + "\n" +
                 "Operator: " + operator + "\n" +
-                "Found: " + fieldValue;
+                "Baseline value: " + value;
     }
 }

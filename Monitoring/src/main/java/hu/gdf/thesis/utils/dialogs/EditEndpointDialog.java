@@ -8,48 +8,47 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import hu.gdf.thesis.backend.FileHandler;
-import hu.gdf.thesis.model.config.Category;
-import hu.gdf.thesis.model.config.Config;
-import hu.gdf.thesis.model.config.Entry;
+import hu.gdf.thesis.model.Category;
+import hu.gdf.thesis.model.Config;
+import hu.gdf.thesis.model.Endpoint;
 import hu.gdf.thesis.utils.notifications.CustomNotification;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
-public class EditEntryDialog extends Dialog {
+public class EditEndpointDialog extends Dialog {
+
+    private static CustomNotification notification = new CustomNotification();
+
     @Getter
-    private Entry entry = new Entry();
-    @Getter
+    @Setter
     private boolean deleteState = false;
 
-    public EditEntryDialog(String fileName, Config config, Category category, Entry entry, @Autowired FileHandler fileHandler) {
+    public EditEndpointDialog(String fileName, Config config, Category category, Endpoint endpoint, FileHandler fileHandler) {
 
         TextField restURLFieldTF = new TextField("REST URL");
         restURLFieldTF.setHelperText("Please add the REST URL starting with a \"/\" (forward slash).");
         restURLFieldTF.setWidth("450px");
-        restURLFieldTF.setValue(entry.getRestURL());
+        restURLFieldTF.setValue(endpoint.getRestURL());
 
         Select alertSelect = new Select(true, false);
         alertSelect.setWidth("300px");
         alertSelect.setLabel("Set Alert");
-        alertSelect.setValue(entry.isAlert());
+        alertSelect.setValue(endpoint.isAlert());
 
         Button cancelButton = new Button("Cancel", e -> this.close());
 
         Button saveButton = new Button("Save to Config");
         saveButton.addClickListener(buttonClickEvent -> {
             try {
-                if (restURLFieldTF.getValue().isEmpty() || alertSelect.isEmpty()) {
-
-                    CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
-                    errorNotification.open();
-
+                if (restURLFieldTF.getValue().isEmpty() || !restURLFieldTF.getValue().startsWith("/") || alertSelect.isEmpty()) {
+                    notification.setText("Save failed - Invalid or empty Input.");
+                    notification.open();
                 } else {
-                    entry.setRestURL(restURLFieldTF.getValue().trim());
-                    entry.setAlert((Boolean) alertSelect.getValue());
-                    this.entry = entry;
-                    fileHandler.deleteOrEditEntry(fileName, config, category, this.entry, true);
+                    endpoint.setRestURL(restURLFieldTF.getValue().trim());
+                    endpoint.setAlert((Boolean) alertSelect.getValue());
+                    fileHandler.modifyEndpoint(fileName, config, category, endpoint, true);
                     this.close();
                 }
             } catch (NullPointerException ex) {
@@ -59,12 +58,12 @@ public class EditEntryDialog extends Dialog {
         Button deleteButton = new Button("Delete Entry");
         deleteButton.addClickListener(buttonClickEvent -> {
             try {
-                ConfirmDialog confirmDialog = new ConfirmDialog(entry.getRestURL());
+                ConfirmDeleteDialog confirmDialog = new ConfirmDeleteDialog(endpoint.getRestURL());
                 confirmDialog.open();
                 confirmDialog.addDetachListener(detachEvent -> {
                     if(confirmDialog.isDeleteState()) {
                         deleteState = true;
-                        fileHandler.deleteOrEditEntry(fileName, config, category, entry, false);
+                        fileHandler.modifyEndpoint(fileName, config, category, endpoint, false);
                         this.close();
                     }
                 });

@@ -5,9 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @ConfigurationProperties(prefix = "config.directory")
-@Configuration("path")
+@Configuration
 @Data
 public class PathConfiguration {
     private String path;
-
 }

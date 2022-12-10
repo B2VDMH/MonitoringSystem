@@ -6,25 +6,27 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import hu.gdf.thesis.backend.FileHandler;
-import hu.gdf.thesis.model.config.Category;
-import hu.gdf.thesis.model.config.Config;
-import hu.gdf.thesis.model.config.Entry;
-import hu.gdf.thesis.model.config.RestField;
+import hu.gdf.thesis.model.Category;
+import hu.gdf.thesis.model.Config;
+import hu.gdf.thesis.model.Endpoint;
+import hu.gdf.thesis.model.Field;
 import hu.gdf.thesis.utils.notifications.CustomNotification;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 @Slf4j
-public class RestFieldDialog extends Dialog {
+public class FieldDialog extends Dialog {
+
+    private static CustomNotification notification = new CustomNotification();
 
     @Getter
-    private RestField restField = new RestField();
+    private Field field = new Field();
     @Getter
+    @Setter
     private boolean saveState = false;
 
-    public RestFieldDialog(String fileName, Config config, Category category, Entry entry, @Autowired FileHandler fileHandler) {
+    public FieldDialog(String fileName, Config config, Category category, Endpoint endpoint, FileHandler fileHandler) {
 
         TextField restFieldPathTF = new TextField("REST Field Path");
         restFieldPathTF.setHelperText("Please add the full path using JsonPath syntax (e.g. $.fieldArray[0].field)");
@@ -36,20 +38,13 @@ public class RestFieldDialog extends Dialog {
         saveButton.addClickListener( buttonClickEvent -> {
             try {
                 if(restFieldPathTF.getValue().isEmpty()){
-                    CustomNotification errorNotification = new CustomNotification("Save failed - Invalid or empty Input.");
-                    errorNotification.open();
+                    notification.setText("Save failed - Invalid or empty Input.");
+                    notification.open();
                 } else {
-                    restField.setFieldPath(restFieldPathTF.getValue().trim());
-                    entry.getRestFields().add(restField);
+                    field.setFieldPath(restFieldPathTF.getValue().trim());
 
-                    int entryIndex = category.getEntries().indexOf(entry);
-                    category.getEntries().set(entryIndex,entry);
-
-                    int categoryIndex = config.getServer().getCategories().indexOf(category);
-                    config.getServer().getCategories().set(categoryIndex, category);
-
-                    fileHandler.writeConfigToFile(fileName, fileHandler.serializeJsonConfig(config));
-                    saveState=true;
+                    fileHandler.addField(fileName, config, category, endpoint, field);
+                    setSaveState(true);
                     this.close();
                 }
             }catch (NullPointerException ex) {

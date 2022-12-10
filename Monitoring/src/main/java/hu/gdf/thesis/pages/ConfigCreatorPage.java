@@ -7,33 +7,38 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.select.data.SelectListDataView;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import hu.gdf.thesis.AppHeader;
+import hu.gdf.thesis.model.*;
+import hu.gdf.thesis.utils.notifications.CustomNotification;
+import hu.gdf.thesis.utils.other.AppHeader;
 import hu.gdf.thesis.backend.FileHandler;
-import hu.gdf.thesis.model.config.*;
 import hu.gdf.thesis.utils.dialogs.*;
-import hu.gdf.thesis.utils.layouts.CustomHorizontalLayout;
+import hu.gdf.thesis.utils.other.CustomHorizontalLayout;
 import hu.gdf.thesis.utils.selects.CustomSelect;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
-@PageTitle("Config Page")
+import java.util.ArrayList;
+
+@PageTitle("Configuration Page")
 @Route("config")
 @Slf4j
 public class ConfigCreatorPage extends VerticalLayout {
-    static String fileName = "";
-    static Config config = new Config();
-    static Category category = new Category();
-    static Entry entry = new Entry();
-    static RestField restField = new RestField();
-    static Operation operation = new Operation();
 
-    static SelectListDataView<Category> categoryDataView;
-    static SelectListDataView<Entry> entryDataView;
-    static SelectListDataView<RestField> restFieldDataView;
-    static SelectListDataView<Operation> operationDataView;
+    private static CustomNotification notification = new CustomNotification();
+
+    String fileName = "";
+    Config config = new Config();
+    Category category = new Category();
+    Endpoint endpoint = new Endpoint();
+    Field field = new Field();
+    Operation operation = new Operation();
+
+    SelectListDataView<Category> categoryDataView;
+    SelectListDataView<Endpoint> endpointDataView;
+    SelectListDataView<Field> fieldDataView;
+    SelectListDataView<Operation> operationDataView;
 
 
-    public ConfigCreatorPage(@Autowired FileHandler fileHandler) {
+    public ConfigCreatorPage(FileHandler fileHandler) {
 
         VerticalLayout pageContentLayout = new VerticalLayout();
         this.add(new AppHeader());
@@ -41,21 +46,22 @@ public class ConfigCreatorPage extends VerticalLayout {
         //Component containers
         CustomHorizontalLayout configFileLayout = new CustomHorizontalLayout();
         CustomHorizontalLayout categoryLayout = new CustomHorizontalLayout();
-        CustomHorizontalLayout entryLayout = new CustomHorizontalLayout();
-        CustomHorizontalLayout restFieldLayout = new CustomHorizontalLayout();
+        CustomHorizontalLayout endpointLayout = new CustomHorizontalLayout();
+        CustomHorizontalLayout fieldLayout = new CustomHorizontalLayout();
         CustomHorizontalLayout operationLayout = new CustomHorizontalLayout();
         CustomHorizontalLayout addressLayout = new CustomHorizontalLayout();
 
-        //Select component for file sselection
+        //Select component for file selection
         Select fileSelect = new Select();
         fileSelect.setItems(fileHandler.listFilesInDirectory());
         fileSelect.setLabel("Configuration File Selector");
-        fileSelect.setHelperText("Select the file you wish to fill with edit.");
+        fileSelect.setHelperText("Select the configuration file you wish to edit. Current directory: " + fileHandler.directory());
+        fileSelect.setWidth("400px");
 
         //Select components, that will appear on page at user input
         CustomSelect categorySelect = new CustomSelect("Select Category");
-        CustomSelect entrySelect = new CustomSelect("Select Entry");
-        CustomSelect restFieldSelect = new CustomSelect("Select REST Field Path");
+        CustomSelect endpointSelect = new CustomSelect("Select Endpoint");
+        CustomSelect fieldSelect = new CustomSelect("Select Field Path");
         CustomSelect operationSelect = new CustomSelect("Select Operation");
 
         //Buttons and their click listener functions
@@ -63,10 +69,10 @@ public class ConfigCreatorPage extends VerticalLayout {
         Button createFileButton = new Button("Create Config");
         createFileButton.addClickListener(buttonClickEvent -> {
 
-            ConfigCreatorDialog configCreatorDialog = new ConfigCreatorDialog(fileHandler);
-            configCreatorDialog.open();
-            configCreatorDialog.addDetachListener(detachEvent -> {
-                if (configCreatorDialog.isSaveState()) {
+            ConfigDialog configDialog = new ConfigDialog(fileHandler);
+            configDialog.open();
+            configDialog.addDetachListener(detachEvent -> {
+                if (configDialog.isSaveState()) {
                     UI.getCurrent().getPage().reload();
                 }
             });
@@ -86,7 +92,19 @@ public class ConfigCreatorPage extends VerticalLayout {
             log.warn("Empty selection");
         }
         });
-
+        Button addressButton = new Button("Addresses");
+        addressButton.addClickListener(buttonClickEvent -> {
+                if(fileSelect.isEmpty() || fileSelect.getValue() == null) {
+                    notification.setText("Please select a Configuration File!");
+                    notification.open();
+                } else {
+                    AddressDialog addressDialog = new AddressDialog(fileName, config, fileHandler);
+                    addressDialog.open();
+                    addressDialog.addDetachListener(detachEvent -> {
+                        UI.getCurrent().getPage().reload();
+                    });
+                }
+        });
         Button addCategoryButton = new Button("Add Category");
         addCategoryButton.addClickListener(buttonClickEvent -> {
 
@@ -116,28 +134,28 @@ public class ConfigCreatorPage extends VerticalLayout {
         }
         });
 
-        Button addEntryButton = new Button("Add Entry");
-        addEntryButton.addClickListener(buttonClickEvent -> {
+        Button addEndpointButton = new Button("Add Endpoint");
+        addEndpointButton.addClickListener(buttonClickEvent -> {
 
-            EntryDialog entryDialog = new EntryDialog(fileName, config, category, fileHandler);
-            entryDialog.open();
-            entryDialog.addDetachListener(detachEvent -> {
-                if (entryDialog.isSaveState()) {
-                    entryDataView.addItem(entryDialog.getEntry());
+            EndpointDialog endpointDialog = new EndpointDialog(fileName, config, category, fileHandler);
+            endpointDialog.open();
+            endpointDialog.addDetachListener(detachEvent -> {
+                if (endpointDialog.isSaveState()) {
+                    endpointDataView.addItem(endpointDialog.getEntry());
                 }
             });
         });
 
-        Button editEntryButton = new Button("Edit Entry");
-        editEntryButton.addClickListener(buttonClickEvent -> {
+        Button editEndpointButton = new Button("Edit Endpoint");
+        editEndpointButton.addClickListener(buttonClickEvent -> {
             try {
-            EditEntryDialog editEntryDialog = new EditEntryDialog(fileName, config, category, entry, fileHandler);
-            editEntryDialog.open();
-            editEntryDialog.addDetachListener(detachEvent -> {
-                if (!editEntryDialog.isDeleteState()) {
-                    entryDataView.refreshAll();
+            EditEndpointDialog editEndpointDialog = new EditEndpointDialog(fileName, config, category, endpoint, fileHandler);
+            editEndpointDialog.open();
+            editEndpointDialog.addDetachListener(detachEvent -> {
+                if (!editEndpointDialog.isDeleteState()) {
+                    endpointDataView.refreshAll();
                 } else {
-                    entryDataView.removeItem(entry);
+                    endpointDataView.removeItem(endpoint);
                 }
             });
 
@@ -147,28 +165,28 @@ public class ConfigCreatorPage extends VerticalLayout {
         });
 
 
-        Button addRestFieldButton = new Button("Add REST Field Path");
-        addRestFieldButton.addClickListener(buttonClickEvent -> {
+        Button addFieldButton = new Button("Add Field Path");
+        addFieldButton.addClickListener(buttonClickEvent -> {
 
-            RestFieldDialog restFieldDialog = new RestFieldDialog(fileName, config, category, entry, fileHandler);
-            restFieldDialog.open();
-            restFieldDialog.addDetachListener(detachEvent -> {
-                if (restFieldDialog.isSaveState()) {
-                    restFieldDataView.addItem(restFieldDialog.getRestField());
+            FieldDialog fieldDialog = new FieldDialog(fileName, config, category, endpoint, fileHandler);
+            fieldDialog.open();
+            fieldDialog.addDetachListener(detachEvent -> {
+                if (fieldDialog.isSaveState()) {
+                    fieldDataView.addItem(fieldDialog.getField());
                 }
             });
         });
 
-        Button editRestFieldButton = new Button("Edit REST Field Path");
-        editRestFieldButton.addClickListener(buttonClickEvent -> {
+        Button editFieldButton = new Button("Edit Field Path");
+        editFieldButton.addClickListener(buttonClickEvent -> {
             try {
-            EditRestFieldDialog editRestFieldDialog = new EditRestFieldDialog(fileName, config, category, entry, restField, fileHandler);
-            editRestFieldDialog.open();
-            editRestFieldDialog.addDetachListener(detachEvent -> {
-                if (!editRestFieldDialog.isDeleteState()) {
-                    restFieldDataView.refreshAll();
+            EditFieldDialog editFieldDialog = new EditFieldDialog(fileName, config, category, endpoint, field, fileHandler);
+            editFieldDialog.open();
+            editFieldDialog.addDetachListener(detachEvent -> {
+                if (!editFieldDialog.isDeleteState()) {
+                    fieldDataView.refreshAll();
                 } else {
-                    restFieldDataView.removeItem(restField);
+                    fieldDataView.removeItem(field);
                 }
             });
             } catch (NullPointerException ex) {
@@ -178,7 +196,7 @@ public class ConfigCreatorPage extends VerticalLayout {
 
         Button addOperationButton = new Button("Add Operation");
         addOperationButton.addClickListener(buttonClickEvent -> {
-            OperationDialog operationDialog = new OperationDialog(fileName, config, category, entry, restField, fileHandler);
+            OperationDialog operationDialog = new OperationDialog(fileName, config, category, endpoint, field, fileHandler);
             operationDialog.open();
             operationDialog.addDetachListener(detachEvent -> {
                 if (operationDialog.isSaveState()) {
@@ -189,7 +207,7 @@ public class ConfigCreatorPage extends VerticalLayout {
         Button editOperationButton = new Button("Edit Operation");
         editOperationButton.addClickListener(buttonClickEvent -> {
             try {
-                EditOperationDialog editOperationDialog = new EditOperationDialog(fileName, config, category, entry, restField, operation, fileHandler);
+                EditOperationDialog editOperationDialog = new EditOperationDialog(fileName, config, category, endpoint, field, operation, fileHandler);
                 editOperationDialog.open();
                 editOperationDialog.addDetachListener(detachEvent -> {
                     if (!editOperationDialog.isDeleteState()) {
@@ -206,48 +224,46 @@ public class ConfigCreatorPage extends VerticalLayout {
         fileSelect.addValueChangeListener(f -> {
             try {
                 categorySelect.clear();
-                entrySelect.clear();
-                restFieldSelect.clear();
+                endpointSelect.clear();
+                fieldSelect.clear();
                 operationSelect.clear();
 
                 categoryLayout.removeAll();
 
                 fileName = String.valueOf(fileSelect.getValue());
-                config = fileHandler.deserializeJsonConfig(fileHandler.readFromFile(fileName), Config.class);
+                config = fileHandler.deserialize(fileName);
 
-                categoryDataView = (SelectListDataView<Category>) categorySelect.setItems(fileHandler.getAllCategories(config));
+                categoryDataView = (SelectListDataView<Category>) categorySelect.setItems(new ArrayList<>(config.getCategories()));
                 categorySelect.addValueChangeListener(c -> {
-
                     category = (Category) categorySelect.getValue();
 
                     try {
-                        entrySelect.clear();
-                        restFieldSelect.clear();
+                        endpointSelect.clear();
+                        fieldSelect.clear();
                         operationSelect.clear();
-                        entryLayout.removeAll();
 
-                        entrySelect.clear();
+                        endpointLayout.removeAll();
 
-                        entryDataView = (SelectListDataView<Entry>) entrySelect.setItems(fileHandler.getAllEntries(category));
-                        entrySelect.addValueChangeListener(e -> {
+                        endpointDataView = (SelectListDataView<Endpoint>) endpointSelect.setItems(new ArrayList<>(category.getEndpoints()));
+                        endpointSelect.addValueChangeListener(e -> {
                             try {
-                                restFieldSelect.clear();
+                                fieldSelect.clear();
                                 operationSelect.clear();
 
-                                restFieldLayout.removeAll();
+                                fieldLayout.removeAll();
 
-                                entry = (Entry) entrySelect.getValue();
+                                endpoint = (Endpoint) endpointSelect.getValue();
 
-                                restFieldDataView = (SelectListDataView<RestField>) restFieldSelect.setItems(fileHandler.getAllRestFields(entry));
-                                restFieldSelect.addValueChangeListener(r -> {
+                                fieldDataView = (SelectListDataView<Field>) fieldSelect.setItems(new ArrayList<>(endpoint.getFields()));
+                                fieldSelect.addValueChangeListener(r -> {
                                     try {
                                         operationSelect.clear();
 
                                         operationLayout.removeAll();
 
-                                        restField = (RestField) restFieldSelect.getValue();
+                                        field = (Field) fieldSelect.getValue();
 
-                                        operationDataView = (SelectListDataView<Operation>) operationSelect.setItems(fileHandler.getAllOperations(restField));
+                                        operationDataView = (SelectListDataView<Operation>) operationSelect.setItems(new ArrayList<>(field.getOperations()));
                                         operationSelect.addValueChangeListener(o -> {
 
                                             operation = (Operation) operationSelect.getValue();
@@ -257,18 +273,18 @@ public class ConfigCreatorPage extends VerticalLayout {
                                         operationLayout.add(operationSelect, addOperationButton, editOperationButton);
 
                                     } catch (Exception ex) {
-                                        log.error("Error at setting RestField", ex);
+                                        log.error("Error at setting Field", ex);
                                     }
                                 });
 
-                                restFieldLayout.add(restFieldSelect, addRestFieldButton, editRestFieldButton);
+                                fieldLayout.add(fieldSelect, addFieldButton, editFieldButton);
 
                             } catch (Exception ex) {
-                                log.error("Error at setting Entry", ex);
+                                log.error("Error at setting Endpoint", ex);
                             }
                         });
 
-                        entryLayout.add(entrySelect, addEntryButton, editEntryButton);
+                        endpointLayout.add(endpointSelect, addEndpointButton, editEndpointButton);
 
                     } catch (Exception ex) {
                         log.error("Error at setting Category", ex);
@@ -281,8 +297,8 @@ public class ConfigCreatorPage extends VerticalLayout {
                 log.error("Error at setting Config", ex);
             }
         });
-        configFileLayout.add(fileSelect, createFileButton, editFileButton);
-        pageContentLayout.add(categoryLayout, entryLayout, restFieldLayout, operationLayout, addressLayout);
+        configFileLayout.add(fileSelect, createFileButton, editFileButton, addressButton);
+        pageContentLayout.add(categoryLayout, endpointLayout, fieldLayout, operationLayout, addressLayout);
         this.add(configFileLayout);
         this.add(pageContentLayout);
     }

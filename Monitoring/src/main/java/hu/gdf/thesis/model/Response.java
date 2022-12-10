@@ -10,6 +10,6 @@ public class Response {
     private String restURL;
     private String fieldPath;
     private String fieldValue;
-    private String color;
+    private String action;
 
 }
