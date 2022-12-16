@@ -1,6 +1,5 @@
 package hu.gdf.thesis.utils.dialogs;
 
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;

@@ -40,7 +40,8 @@ public class ResponseViewer extends VerticalLayout {
                 responseTA.setValue(responseJson);
             } catch (WebClientRequestException ex) {
                 responseTA.setValue("Server Unreachable! " +
-                        "Please check the provided address for input errors.");
+                        "Please check the" +
+                        " provided address for input errors.");
                 log.info(String.valueOf(ex.getMostSpecificCause()));
             } catch (WebClientResponseException ex) {
                 responseTA.setValue(ex.getLocalizedMessage());

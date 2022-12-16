@@ -55,7 +55,7 @@ public class OperationDialog extends Dialog {
 
         saveButton.addClickListener( buttonClickEvent -> {
             try {
-                if(operatorSelect.isEmpty() || valueTF.getValue().isEmpty() || actionSelect.isEmpty()) {
+                if(operatorSelect.isEmpty() || actionSelect.isEmpty()) {
                     notification.setText("Save failed - Invalid or empty Input.");
                     notification.open();
                 } else {

@@ -1,7 +1,6 @@
 package hu.gdf.thesis;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 public class AppHeader extends MenuBar {
 	public AppHeader() {

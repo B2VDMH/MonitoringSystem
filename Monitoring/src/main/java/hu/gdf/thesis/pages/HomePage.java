@@ -7,7 +7,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import hu.gdf.thesis.utils.other.AppHeader;
@@ -16,7 +15,8 @@ import hu.gdf.thesis.utils.other.AppHeader;
 @Route("")
 @Theme(themeClass = Lumo.class, variant = Lumo.DARK)
 @CssImport("./styles/shared-styles.css")
-@CssImport(value="./styles/vaadin-text-field-styles.css", themeFor = "vaadin-text-field")
+@CssImport(value="./styles/vaadin-text-field-styles.css",
+		themeFor = "vaadin-text-field")
 @CssImport(value="./styles/vaadin-grid-styling.css", themeFor = "vaadin-grid")
 public class HomePage extends VerticalLayout implements AppShellConfigurator {
 	public HomePage() {

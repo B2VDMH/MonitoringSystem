@@ -164,8 +164,9 @@ public class FileHandler {
         writeConfigToFile(fileName, config);
     }
 
-    public void addOperation(String fileName, Config config, Category category, Endpoint endpoint, Field
-            field, Operation operation) {
+    public void addOperation(String fileName, Config config,
+                             Category category, Endpoint endpoint,
+                             Field field, Operation operation) {
         field.getOperations().add(operation);
 
         int fieldIndex = endpoint.getFields().indexOf(field);
@@ -186,10 +187,12 @@ public class FileHandler {
         writeConfigToFile(fileName, config);
     }
     //Delete or edit specific elements in config
-    public void modifyCategory(String fileName, Config config, Category category, boolean edit) {
+    public void modifyCategory(String fileName, Config config,
+                               Category category, boolean edit) {
         try {
             if (edit) {
-                int categoryIndex = config.getCategories().indexOf(category);
+                int categoryIndex = config.
+                        getCategories().indexOf(category);
                 config.getCategories().set(categoryIndex, category);
             } else {
                 config.getCategories().remove(category);

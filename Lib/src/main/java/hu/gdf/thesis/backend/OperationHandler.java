@@ -3,7 +3,6 @@ package hu.gdf.thesis.backend;
 import hu.gdf.thesis.model.Operation;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 import static hu.gdf.thesis.backend.TypeConverter.tryParseBool;
 import static hu.gdf.thesis.backend.TypeConverter.tryParseInt;

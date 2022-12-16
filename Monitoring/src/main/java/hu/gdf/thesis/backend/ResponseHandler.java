@@ -42,7 +42,7 @@ public class ResponseHandler {
                                         buildResponse(response, config, category.getType(), endpoint.getRestURL(), field.getFieldPath(), fieldValue);
 
                                         if (!field.getOperations().isEmpty()) {
-                                            executeAction(response, field, fieldValue);
+                                            checkAllOperations(response, field, fieldValue);
                                         }
                                         responseList.add(response);
 
@@ -64,7 +64,7 @@ public class ResponseHandler {
                                             buildResponse(response, config, category.getType(), endpoint.getRestURL(), fieldPath, fieldValue);
 
                                             if (!field.getOperations().isEmpty()) {
-                                                executeAction(response, field, fieldValue);
+                                                checkAllOperations(response, field, fieldValue);
                                             }
                                             responseList.add(response);
                                         }
@@ -117,7 +117,7 @@ public class ResponseHandler {
     }
 
     //If operation conditions are met, sets color variable of response object
-    private void executeAction(Response response, Field field, String fieldValue) {
+    private void checkAllOperations(Response response, Field field, String fieldValue) {
         try {
             for (Operation operation : field.getOperations()) {
                 OperationHandler operationHandler = new OperationHandler();

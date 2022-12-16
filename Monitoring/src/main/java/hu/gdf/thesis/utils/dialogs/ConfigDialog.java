@@ -49,14 +49,18 @@ public class ConfigDialog extends Dialog {
         Button saveButton = new Button("Save to Config");
         saveButton.addClickListener(buttonClickEvent -> {
             try {
-                if (fileNameTF.getValue().isEmpty() || serverHostTF.getValue().isEmpty()
-                        || portField.getValue() == null || timerField.getValue() == null || portField.getValue() < 1024
-                        || portField.getValue() > 65536 || timerField.getValue() < 10 || timerField.getValue() > 600) {
-                    notification.setText("Save failed - Invalid or empty Input.");
+                if (fileHandler.fileExists(fileNameTF.getValue())) {
 
-                } else if (fileHandler.fileExists(fileNameTF.getValue())) {
                     notification.setText("Save failed - File already exists.");
                     notification.open();
+
+                } else if (fileNameTF.getValue().isEmpty() || serverHostTF.getValue().isEmpty()
+                        || portField.getValue() == null || timerField.getValue() == null || portField.getValue() < 1024
+                        || portField.getValue() > 65536 || timerField.getValue() < 10 || timerField.getValue() > 600) {
+
+                    notification.setText("Save failed - Invalid or empty Input.");
+                    notification.open();
+
                 } else {
                     Config config = new Config();
                     config.setHost(serverHostTF.getValue().trim());

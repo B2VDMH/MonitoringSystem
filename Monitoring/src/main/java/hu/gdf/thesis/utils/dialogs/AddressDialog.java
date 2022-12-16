@@ -12,7 +12,6 @@ import hu.gdf.thesis.model.Address;
 import hu.gdf.thesis.model.Config;
 import hu.gdf.thesis.utils.notifications.CustomNotification;
 import hu.gdf.thesis.utils.selects.CustomSelect;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 

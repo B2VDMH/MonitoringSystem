@@ -1,8 +1,6 @@
 package hu.gdf.thesis;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Setter;
 
 @Data
 public class AlertEmailContent {

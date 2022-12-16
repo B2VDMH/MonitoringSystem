@@ -46,7 +46,8 @@ public class MonitoringPage extends VerticalLayout{
         HorizontalLayout timerLayout = new HorizontalLayout();
 
         //Create Grid without auto creation of it's columns
-        Grid<Response> monitoringGrid = new Grid<>(Response.class, false);
+        Grid<Response> monitoringGrid =
+                new Grid<>(Response.class, false);
 
         //Create Grid columns
         monitoringGrid.addColumn(Response::getHostName).setHeader("Server Host");
@@ -64,7 +65,6 @@ public class MonitoringPage extends VerticalLayout{
         }
 
         monitoringGrid.setItems();
-
 
         gridLayout.add(monitoringGrid);
         this.add(timerLayout, gridLayout);

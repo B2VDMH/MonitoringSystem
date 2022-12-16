@@ -4,8 +4,8 @@ import hu.gdf.thesis.model.Address;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +15,10 @@ import java.util.List;
 public class SmtpMailSender {
 
     @Autowired
-    JavaMailSender mailSender;
+    MailSender mailSender;
 
-    public void sendEmail(AlertEmailContent content, List<Address> addressList ) {
+    public void sendEmail(AlertEmailContent content,
+                          List<Address> addressList ) {
         try {
             for (Address address : addressList ) {
                 SimpleMailMessage message = new SimpleMailMessage();
@@ -29,8 +30,8 @@ public class SmtpMailSender {
                 log.info("Sending alert e-mail to address: " + address.getAddress());
             }
         } catch (MailException ex) {
-            log.error("Error when attempting to send e-mail to address.");
+            log.error("Error when attempting to" +
+                    " send e-mail to address.");
         }
-
     }
 }

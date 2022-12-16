@@ -126,11 +126,6 @@
             <artifactId>Lib</artifactId>
             <version>v20220309-00</version>
         </dependency>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>flow-server</artifactId>
-            <version>${vaadin.version}</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/com.flowingcode.addons/simple-timer -->
         <dependency>
             <groupId>com.flowingcode.addons</groupId>
