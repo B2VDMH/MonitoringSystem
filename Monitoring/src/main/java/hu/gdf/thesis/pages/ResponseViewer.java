@@ -6,7 +6,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import hu.gdf.thesis.AppHeader;
+import hu.gdf.thesis.utils.other.AppHeader;
 import hu.gdf.thesis.backend.RestClient;
 import hu.gdf.thesis.utils.other.CustomHorizontalLayout;
 import lombok.extern.slf4j.Slf4j;
